@@ -1,135 +1,169 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mero_audio_player/core/themes/color_util.dart'; // For gradient colors utility
-import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio_player/audio_player_cubit.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/current_audio_detail_page.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
+import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/full_player_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/widgets/slider_progress.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/rotating_while_playing_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/waiting_list_widget.dart';
+import 'package:mero_audio_player/gen/assets.gen.dart';
 
-class CurrentAudioWidget extends StatelessWidget {
-  const CurrentAudioWidget({Key? key}) : super(key: key);
+class CurrentAudioWidget extends StatefulWidget {
+  final double? controlIconsSize;
+  const CurrentAudioWidget({super.key, this.controlIconsSize});
+
+  @override
+  State<CurrentAudioWidget> createState() => _CurrentAudioWidgetState();
+}
+
+class _CurrentAudioWidgetState extends State<CurrentAudioWidget> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final audioBloc = context.read<AudioPlayerBloc>();
+    final player = audioBloc.playerHandler.player;
 
-    return BlocBuilder<AudioPlayerCubit, AudioPlayerState>(
+    return BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
       builder: (context, state) {
-        if (state is! AudioPlayerPlaying && state is! AudioPlayerPaused) {
-          return const SizedBox.shrink();
-        }
-
-        final audio =
-            state is AudioPlayerPlaying
-                ? state.audio
-                : (state as AudioPlayerPaused).audio;
-        final pos =
-            state is AudioPlayerPlaying
-                ? state.position
-                : (state as AudioPlayerPaused).position;
-        final dur =
-            state is AudioPlayerPlaying
-                ? state.duration
-                : (state as AudioPlayerPaused).duration;
-        final isPlaying = state is AudioPlayerPlaying;
-
-        final bgGradient = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: ColorUtil.getGradientColorsFromId(audio.id.toString()),
-        );
+        final current = state.current;
+        if (current == null) return SizedBox.shrink();
 
         return InkWell(
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CurrentAudioDetailPage(),
-                ),
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) => FullPlayerPage(),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
               ),
+              isScrollControlled:
+                  true, // Allows full height bottom sheet if needed
+            );
+          },
           child: Container(
-            height: 100.h,
-            padding: EdgeInsets.all(10.w),
-            margin: EdgeInsets.all(5.w),
+            padding: context.paddingMedium,
             decoration: BoxDecoration(
-              gradient: bgGradient,
-              borderRadius: BorderRadius.circular(16.r),
+              border: Border(
+                top: BorderSide(color: Colors.white, width: 0.5.r),
+              ),
+              //color: Colors.amber,
+              gradient: gradientFromColor(globalBackgroundColor!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 10.r,
+                  offset: Offset(0, -3.h),
                 ),
               ],
+
+              //color: Colors.black,
             ),
+            height: 94.h,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  spacing: 5.w,
                   children: [
-                    AudioArtworkWidget(audio: audio),
-                    SizedBox(width: 10.w),
+                    RotatingWhilePlayingWidget(
+                      player: player,
+                      child: AudioArtworkWidget(
+                        audio: state.current!,
+                        size: 50.sp,
+                      ),
+                    ),
+
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            audio.title,
+                            current.title,
                             maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyMedium?.copyWith(
+                            style: TextStyles.bodyLarge.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           Text(
-                            audio.artist ?? '',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w700,
+                            current.artistOrUnknown,
+                            style: TextStyles.bodyMedium.copyWith(
+                              color: Colors.white,
                             ),
+                            maxLines: 1,
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.skip_previous,
-                        color: Colors.white,
-                      ),
-                      onPressed:
-                          () => context.read<AudioPlayerCubit>().previous(),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
-                      ),
+                    ControlIconWidget(
+                      opacity: 0,
+                      rotate: context.locale.languageCode != 'ar',
+                      svgGenImage: Assets.icons.next,
+                      size: widget.controlIconsSize ?? 40.sp,
                       onPressed: () {
-                        isPlaying
-                            ? context.read<AudioPlayerCubit>().pause()
-                            : context.read<AudioPlayerCubit>().play();
+                        audioBloc.add(PreviousAudio());
                       },
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.white),
-                      onPressed: () => context.read<AudioPlayerCubit>().next(),
+
+                    StreamBuilder<bool>(
+                      stream: player.playingStream,
+                      initialData: player.playing,
+                      builder: (context, snapshot) {
+                        final isPlaying = snapshot.data ?? false;
+                        return ControlIconWidget(
+                          opacity: 0,
+                          svgGenImage:
+                              isPlaying
+                                  ? Assets.icons.pause
+                                  : Assets.icons.play,
+
+                          size: widget.controlIconsSize ?? 40.sp,
+                          onPressed: () {
+                            if (isPlaying) {
+                              audioBloc.add(PauseAudio());
+                            } else {
+                              audioBloc.add(ResumeAudio());
+                            }
+                          },
+                        );
+                      },
+                    ),
+                    ControlIconWidget(
+                      opacity: 0,
+                      rotate: context.locale.languageCode == 'ar',
+                      svgGenImage: Assets.icons.next,
+                      size: widget.controlIconsSize ?? 40.sp,
+                      onPressed: () {
+                        audioBloc.add(NextAudio());
+                      },
+                    ),
+                    WaitingListWidget(
+                      audioBloc: audioBloc,
+                      showTitle: false,
+                      size: 40.sp,
                     ),
                   ],
                 ),
-                Slider(
-                  thumbColor: theme.colorScheme.primary,
-                  activeColor: Colors.blue,
-                  padding: EdgeInsets.zero,
-                  value: pos.inSeconds.toDouble(),
-                  max:
-                      dur.inSeconds.toDouble() > 0
-                          ? dur.inSeconds.toDouble()
-                          : 1,
-                  onChanged:
-                      (v) => context.read<AudioPlayerCubit>().seek(
-                        Duration(seconds: v.toInt()),
-                      ),
+                StreamBuilder<Duration>(
+                  stream: player.positionStream,
+                  builder: (context, snapshot) {
+                    return SliderProgress(
+                      trackHeight: 3.h,
+                      enabledThumbRadius: 4.r,
+                      padding: EdgeInsetsDirectional.only(start: 65.w),
+                      position: snapshot.data ?? Duration(seconds: 0),
+                      duration: Duration(milliseconds: current.duration!),
+                      onSeek: (duration) => player.seek(duration),
+                    );
+                  },
                 ),
               ],
             ),

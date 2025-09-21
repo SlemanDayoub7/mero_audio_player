@@ -1,153 +1,191 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
+// ignore_for_file: deprecated_member_use
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio_player/audio_player_cubit.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/current_audio_detail_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/widgets/mini_music_visualizer_widget.dart';
-import 'package:mero_audio_player/injection.dart';
-import 'package:mini_music_visualizer/mini_music_visualizer.dart';
 
-import '../../cubit/audio/audio_cubit.dart';
-import '../../cubit/audio/audio_state.dart';
-import '../../../domain/entities/audio_file.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
+import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
+import 'package:mero_audio_player/core/widgets/app_error_text.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
+
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/selection_mode_row_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/sort_order_playback_widget.dart';
+
+import 'package:mero_audio_player/generated/codegen_loader.g.dart';
+
+import '../../bloc/audio_list/audio_list_bloc.dart';
 
 class AudiosPage extends StatefulWidget {
-  const AudiosPage({Key? key}) : super(key: key);
+  final TextEditingController controller = TextEditingController();
+  AudiosPage({super.key});
 
   @override
   State<AudiosPage> createState() => _AudiosPageState();
 }
 
 class _AudiosPageState extends State<AudiosPage> {
-  String searchQuery = '';
+  bool selectionMode = false;
+  final Set<AudioFile> selected = {};
+
+  void toggleSelection(AudioFile audio) {
+    setState(() {
+      if (selected.contains(audio)) {
+        selected.remove(audio);
+      } else {
+        selected.add(audio);
+      }
+      if (selected.isEmpty) selectionMode = false;
+    });
+  }
+
+  void exitSelectionMode() {
+    setState(() {
+      selected.clear();
+      selectionMode = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final iconColor = theme.iconTheme.color ?? Colors.blueGrey;
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-        child: Column(
-          children: [
-            // مربع البحث
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'ابحث عن أغنية',
-                prefixIcon: Icon(Icons.search, color: iconColor),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.toLowerCase();
-                });
+    return WillPopScope(
+      onWillPop: () async {
+        if (selectionMode) {
+          exitSelectionMode();
+          return false;
+        }
+        return true;
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: 8.w, left: 8.w),
+            child: SearchField(
+              controller: widget.controller,
+              hintText: LocaleKeys.searchAudioFile.tr(),
+              onChanged: (query) {
+                context.read<AudioListBloc>().add(SearchAudio(query));
               },
             ),
-            SizedBox(height: 10.h),
-            Expanded(
-              child: BlocBuilder<AudioCubit, AudioState>(
-                builder: (context, state) {
-                  if (state is AudioLoading || state is AudioInitial) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is AudioLoaded) {
-                    // تصفية قائمة الأغاني حسب النص
-                    final filteredAudios =
-                        state.audios.where((audio) {
-                          final titleLower = audio.title.toLowerCase();
-                          final artistLower = audio.artist?.toLowerCase() ?? '';
-                          return titleLower.contains(searchQuery) ||
-                              artistLower.contains(searchQuery);
-                        }).toList();
+          ),
 
-                    if (filteredAudios.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'لا توجد أغاني مطابقة للبحث',
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                      );
-                    }
-                    return ListView.separated(
-                      itemCount: filteredAudios.length,
-                      separatorBuilder: (_, __) => SizedBox(height: 5.h),
-                      itemBuilder: (context, index) {
-                        final audio = filteredAudios[index];
-                        return InkWell(
-                          onTap: () {
-                            final playerCubit =
-                                context.read<AudioPlayerCubit>();
-                            final playlistId = filteredAudios
-                                .map((a) => a.id)
-                                .join('-');
+          SortOrderPlaybackWidget(),
 
-                            if (playerCubit.currentPlaylistId != playlistId) {
-                              playerCubit.loadPlaylist(
-                                filteredAudios,
-                                startIndex: index,
-                              );
-                            } else {
-                              if (!playerCubit.isCurrentPlaying(index)) {
-                                playerCubit.playIndex(index);
-                              }
-                            }
-
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (_) => CurrentAudioDetailPage(),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              AudioArtworkWidget(
-                                audio: audio,
-                                size: 45,
-                                borderRadius: 8,
-                              ),
-                              SizedBox(width: 7.w),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      audio.title,
-                                      style: theme.textTheme.bodyMedium,
-                                    ),
-                                    Text(
-                                      audio.artist ?? '',
-                                      style: theme.textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              MiniMusicVisualizerWidget(id: audio.id),
-                              Icon(Icons.more_vert, size: 20.r),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  } else if (state is AudioError) {
+          Expanded(
+            child: BlocBuilder<AudioListBloc, AudioListState>(
+              builder: (context, state) {
+                if (state is AudioListLoading) {
+                  return AppCircularProgressIndicator();
+                } else if (state is AudioListLoaded) {
+                  final audios = state.audios;
+                  if (audios.isEmpty) {
                     return Center(
                       child: Text(
-                        'Error: ${state.message}',
-                        style: theme.textTheme.bodyLarge,
+                        LocaleKeys.noResults.tr(),
+                        style: TextStyles.displayMedium.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     );
                   }
-                  return const SizedBox.shrink();
-                },
-              ),
+                  return Stack(
+                    children: [
+                      ListView.builder(
+                        padding:
+                            selectionMode
+                                ? EdgeInsets.only(
+                                  left: 8.w,
+                                  right: 8.w,
+                                  top: 8.w,
+                                  bottom: 90.h,
+                                )
+                                : context.paddingLow,
+
+                        itemCount: audios.length,
+                        itemBuilder: (context, index) {
+                          final audio = audios[index];
+                          return AudioWidget(
+                            audio: audio,
+                            audios: audios,
+                            selectionMode: selectionMode,
+                            isSelected: selected.contains(audio),
+                            onTap:
+                                selectionMode
+                                    ? () => toggleSelection(audio)
+                                    : null, // تشغيل عادي لو مش في وضع التحديد
+                            onLongPress: () {
+                              setState(() {
+                                selectionMode = true;
+                                toggleSelection(audio);
+                              });
+                            },
+                          );
+                        },
+                      ),
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder:
+                      //             (context) => AudioTrimPro(
+                      //               filePath: audios[0].data ?? '',
+                      //             ),
+                      //       ),
+                      //     );
+                      //   },
+                      //   child: Text('data'),
+                      // ),
+                      // if (showScrollToSelectedButton &&
+                      //     audioPlayerState.currentIndex != null)
+                      //   Positioned(
+                      //     bottom: 16,
+                      //     right: 16,
+                      //     child: FloatingActionButton(
+                      //       backgroundColor: Colors.black.withOpacity(0.7),
+                      //       onPressed: _scrollToSelected,
+                      //       child: Icon(
+                      //         color: Colors.white,
+                      //         scrollArrowUp
+                      //             ? Icons.arrow_upward
+                      //             : Icons.arrow_downward,
+                      //       ),
+                      //       mini: true,
+                      //     ),
+                      //   ),
+                      if (selectionMode) ...[
+                        SelectionModeRowWidget(
+                          bottomMargin: 0,
+                          onSelectAll: () {
+                            selected.length == audios.length
+                                ? selected.clear()
+                                : selected.addAll(audios);
+                            setState(() {});
+                          },
+                          selected: selected,
+                          audiosLength: audios.length,
+                        ),
+                      ],
+                    ],
+                  );
+                } else if (state is AudioListError) {
+                  return AppErrorText(errorMessage: state.message);
+                } else {
+                  return const SizedBox();
+                }
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

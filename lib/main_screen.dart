@@ -1,8 +1,19 @@
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/core/widgets/app_drawer.dart';
+import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
+import 'package:mero_audio_player/features/about_us_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/artists/artists_list_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/audios/audios_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/audios/search_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/playlist_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/current_audio_widget.dart';
+import 'package:mero_audio_player/features/privacy_policy_page.dart';
+import 'package:mero_audio_player/gen/fonts.gen.dart';
+import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -11,75 +22,116 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  int _selectedIndex = 0;
 
-  static final List<Widget> _pages = [
-    const AudiosPage(),
-    const SearchPage(),
-    const SizedBox.shrink(),
-  ];
+  final List<Widget> _pages = [AudiosPage(), PlaylistPage(), ArtistListPage()];
 
-  static final List<_NavItem> _navItems = [
-    _NavItem(Icons.music_note, 'Audios'),
-    _NavItem(Icons.book, 'Books'),
-    _NavItem(Icons.podcasts, 'Podcasts'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _pages.length, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          _selectedIndex = _tabController.index;
+        });
+      }
+    });
+  }
 
-  void _onTabTapped(int index) {
-    if (_currentIndex != index) {
-      setState(() => _currentIndex = index);
-    }
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedColor = Theme.of(context).primaryColor;
-    final unselectedColor = Theme.of(context).disabledColor;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_navItems[_currentIndex].label),
-        centerTitle: true,
-        actions: const [],
-      ),
-      body: Stack(
-        children: [
-          IndexedStack(index: _currentIndex, children: _pages),
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: CurrentAudioWidget(),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        items:
-            _navItems
-                .map(
-                  (navItem) => BottomNavigationBarItem(
-                    icon: Icon(navItem.icon, size: 24.sp),
-                    label: navItem.label,
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        image:
+            globalBackgroundImagePath != null
+                ? DecorationImage(
+                  image:
+                      (globalBackgroundImagePath ?? '').contains('assets')
+                          ? AssetImage(globalBackgroundImagePath ?? '')
+                          : FileImage(File(globalBackgroundImagePath!)),
+                  fit: BoxFit.cover,
                 )
-                .toList(),
-        selectedItemColor: selectedColor,
-        unselectedItemColor: unselectedColor,
-        onTap: _onTabTapped,
-        selectedLabelStyle: TextStyle(
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w600,
+                : null,
+        gradient: gradientFromColor(globalBackgroundColor ?? Colors.black),
+      ),
+      child: Scaffold(
+        drawer: AppDrawer(
+          onChangeBackground:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChangeBackgroundPage()),
+              ),
+          onPrivacyPolicy:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),
+              ),
+          onHowAreWe:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AboutUsPage()),
+              ),
         ),
-        unselectedLabelStyle: TextStyle(fontSize: 11.sp),
-        type: BottomNavigationBarType.fixed,
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          toolbarHeight: 0,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(60.h),
+            child: TabBar(
+              controller: _tabController,
+              indicatorPadding: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              indicatorColor: Colors.white,
+              labelColor: Colors.white,
+              dividerColor: Colors.transparent,
+              unselectedLabelColor: Colors.white70,
+
+              labelStyle: TextStyles.headlineSmall.copyWith(
+                fontFamily: FontFamily.changa,
+              ),
+              unselectedLabelStyle: TextStyles.headlineSmall.copyWith(
+                fontFamily: FontFamily.changa,
+              ),
+              tabs: [
+                Tab(text: LocaleKeys.audio.tr()),
+                Tab(text: LocaleKeys.playlists.tr()),
+                Tab(text: LocaleKeys.artists.tr()),
+              ],
+            ),
+          ),
+        ),
+        body: Stack(
+          children: [
+            AppGradientBackground(),
+            //   AppBackgroundImage(),
+            Padding(
+              padding: EdgeInsets.only(top: 100.h, bottom: 94.h),
+              child: IndexedStack(index: _selectedIndex, children: _pages),
+            ),
+
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: CurrentAudioWidget(),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class _NavItem {
-  final IconData icon;
-  final String label;
-
-  const _NavItem(this.icon, this.label);
 }

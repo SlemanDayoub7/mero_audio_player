@@ -6,9 +6,7 @@ import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/themes/dark_theme.dart';
 import 'package:mero_audio_player/core/themes/light_theme.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/playlist.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio/audio_cubit.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio_player/audio_player_cubit.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/cubit/playlist/playlist_cubit.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/audios/audios_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/splash/splash_screen.dart';
 import 'package:mero_audio_player/core/app_startup.dart';
 import 'package:mero_audio_player/features/audio_player/services/audio_handler.dart';
@@ -31,19 +29,7 @@ class _MyAppState extends State<MyApp> {
       minTextAdapt: true,
       builder: (context, child) {
         return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => di.getIt<AudioCubit>()),
-            BlocProvider(
-              create:
-                  (_) => AudioPlayerCubit(audioHandler as AudioPlayerHandler),
-            ),
-            BlocProvider(
-              create:
-                  (_) => PlaylistCubit(
-                    Hive.box<Playlist>(AppConstants.playlistBoxName),
-                  ),
-            ),
-          ],
+          providers: [],
           child: AnimatedBuilder(
             animation: _themeProvider,
             builder: (context, _) {
@@ -53,7 +39,7 @@ class _MyAppState extends State<MyApp> {
                 theme: LightTheme.theme,
 
                 themeMode: _themeProvider.themeMode,
-                home: const SplashScreen(),
+                home: AudiosPage(),
               );
             },
           ),

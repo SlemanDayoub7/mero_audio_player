@@ -35,14 +35,20 @@ class AudioFile extends HiveObject {
   final String? composer;
 
   @HiveField(9)
-  final int? year;
+  final int? dateAdded;
 
   @HiveField(10)
   final int? track;
   @HiveField(11)
   Uint8List? albumArtBytes; // لتخزين الصورة الأصلية كـ bytes
+  @HiveField(12)
+  final String? data;
+  @HiveField(13)
+  final String? genre;
 
   AudioFile({
+    this.data,
+    this.genre,
     required this.id,
     required this.title,
     this.artist,
@@ -52,7 +58,7 @@ class AudioFile extends HiveObject {
     this.size,
     this.displayName,
     this.composer,
-    this.year,
+    this.dateAdded,
     this.track,
     this.albumArtBytes,
   });
@@ -61,12 +67,15 @@ class AudioFile extends HiveObject {
   factory AudioFile.fromSongModel(SongModel song, {Uint8List? albumArt}) =>
       AudioFile(
         id: song.id,
+        data: song.data,
+        dateAdded: song.dateAdded,
         title: song.title,
         artist: song.artist,
         album: song.album,
-        uri: song.uri,
+        uri: song.data,
         duration: song.duration,
         size: song.size,
+        genre: song.genre,
         displayName: song.displayName,
         composer: song.composer,
         track: song.track,
@@ -92,4 +101,44 @@ class AudioFile extends HiveObject {
   /// 💿 اسم الألبوم أو Unknown
   String get albumOrUnknown =>
       album?.isNotEmpty == true ? album! : "Unknown Album";
+}
+
+extension AudioFileMapper on AudioFile {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'artist': artist,
+      'album': album,
+      'uri': uri,
+      'duration': duration,
+      'size': size,
+      'displayName': displayName,
+      'composer': composer,
+      'genre': genre,
+      'dateAdded': dateAdded,
+      'track': track,
+      'albumArtBytes': albumArtBytes,
+      'data': data,
+    };
+  }
+
+  static AudioFile fromMap(Map<String, dynamic> map) {
+    return AudioFile(
+      id: map['id'],
+      title: map['title'],
+      artist: map['artist'],
+      album: map['album'],
+      uri: map['uri'],
+      duration: map['duration'],
+      size: map['size'],
+      genre: map['genre'],
+      displayName: map['displayName'],
+      composer: map['composer'],
+      dateAdded: map['dateAdded'],
+      track: map['track'],
+      albumArtBytes: map['albumArtBytes'],
+      data: map['data'],
+    );
+  }
 }

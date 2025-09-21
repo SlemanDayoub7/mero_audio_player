@@ -1,15 +1,31 @@
 import 'package:hive/hive.dart';
 import 'audio_file.dart';
+import 'chapter.dart';
 
 part 'playlist.g.dart';
 
 @HiveType(typeId: 1)
 class Playlist extends HiveObject {
   @HiveField(0)
-  String name;
+  final String id;
 
   @HiveField(1)
-  List<AudioFile> audios;
+  final String name;
 
-  Playlist({required this.name, required this.audios});
+  @HiveField(2)
+  final List<AudioFile> audios;
+
+  @HiveField(3)
+  final bool isAudiobook; // 👈 جديد
+
+  @HiveField(4)
+  final List<Chapter>? chapters; // 👈 للفصول (إذا Audiobook)
+
+  Playlist({
+    required this.id,
+    required this.name,
+    required this.audios,
+    this.isAudiobook = false,
+    this.chapters,
+  });
 }

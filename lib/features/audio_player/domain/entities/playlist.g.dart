@@ -17,19 +17,28 @@ class PlaylistAdapter extends TypeAdapter<Playlist> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Playlist(
-      name: fields[0] as String,
-      audios: (fields[1] as List).cast<AudioFile>(),
+      id: fields[0] as String,
+      name: fields[1] as String,
+      audios: (fields[2] as List).cast<AudioFile>(),
+      isAudiobook: fields[3] as bool,
+      chapters: (fields[4] as List?)?.cast<Chapter>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Playlist obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.audios);
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.audios)
+      ..writeByte(3)
+      ..write(obj.isAudiobook)
+      ..writeByte(4)
+      ..write(obj.chapters);
   }
 
   @override

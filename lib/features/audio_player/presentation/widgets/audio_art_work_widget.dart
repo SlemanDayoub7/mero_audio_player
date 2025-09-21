@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import '../../domain/entities/audio_file.dart';
 
@@ -11,31 +13,31 @@ class AudioArtworkWidget extends StatelessWidget {
     super.key,
     required this.audio,
     this.size = 60,
-    this.borderRadius = 12,
+    this.borderRadius = 35,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: SizedBox(
-        width: size,
-        height: size,
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey.shade200,
+      ),
+      width: size,
+      height: size,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
         child: QueryArtworkWidget(
           quality: 100,
           artworkQuality: FilterQuality.high,
           id: audio.id,
           keepOldArtwork: true,
           type: ArtworkType.AUDIO,
-          nullArtworkWidget: Container(
+
+          nullArtworkWidget: Assets.icons.music.svg(
             width: size,
             height: size,
-            color: Colors.grey.shade300,
-            child: Icon(
-              Icons.music_note,
-              size: size * 0.6,
-              color: Colors.grey.shade600,
-            ),
+            color: globalBackgroundColor,
           ),
           artworkHeight: size,
           artworkWidth: size,

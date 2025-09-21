@@ -21,7 +21,7 @@ Future<void> setupApp() async {
     androidNotificationOngoing: true,
   );
 
-  di.setupInjection();
+  // di.setupInjection();
 
   audioHandler = AudioPlayerHandler();
 }

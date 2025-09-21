@@ -4,4 +4,5 @@ class AppConstants {
   static const hiveBoxName = 'audio_player_box';
   static const playlistBoxName = 'playlists';
   static const minSearchLength = 2;
+  static const iconPath = 'assets/icons/';
 }

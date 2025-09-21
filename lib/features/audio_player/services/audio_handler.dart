@@ -7,6 +7,25 @@ class AudioPlayerHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler {
   final _player = AudioPlayer();
   AudioPlayer get player => _player;
+  List<AudioFile> get currentPlaylist =>
+      queue.value
+          .map(
+            (item) => AudioFile(
+              id: int.parse(item.id),
+              title: item.title,
+              artist: item.artist,
+              album: item.album,
+              uri: item.extras?['uri'],
+              duration: item.duration?.inMilliseconds,
+            ),
+          )
+          .toList();
+  // Stream for current position
+  Stream<Duration> get positionStream => _player.positionStream;
+
+  // Stream for total duration
+  Stream<Duration?> get durationStream => _player.durationStream;
+
   AudioPlayerHandler() {
     // تحديث حالة المشغل باستمرار
     _player.playerStateStream.listen((state) {
@@ -38,80 +57,106 @@ class AudioPlayerHandler extends BaseAudioHandler
       }
     });
   }
-
   Future<void> setPlaylist(
     List<AudioFile> audios, {
-    int startIndex = 0,
     bool autoRun = true,
+    int? initIndex,
   }) async {
-    final items =
-        audios.map((a) {
-          return MediaItem(
-            id: a.id.toString(),
-            title: a.title,
-            artist: a.artistOrUnknown,
-            album: a.albumOrUnknown,
-            duration: Duration(milliseconds: a.duration ?? 0),
-            artUri: Uri.parse(
-              "content://media/external/audio/albumart/${a.id}",
-            ),
-            extras: {'uri': a.uri},
-          );
-        }).toList();
+    final items = <MediaItem>[];
+    final sources = <AudioSource>[];
+
+    for (var a in audios) {
+      try {
+        // Create MediaItem
+        final mediaItem = MediaItem(
+          id: a.id.toString(),
+          title: a.title,
+          artist: a.artistOrUnknown,
+          album: a.albumOrUnknown,
+          duration: Duration(milliseconds: a.duration ?? 0),
+          artUri: Uri.parse("content://media/external/audio/albumart/${a.id}"),
+          extras: {'uri': a.uri},
+        );
+        items.add(mediaItem);
+
+        // Create AudioSource
+        if (a.uri == null || a.uri!.isEmpty) {
+          throw Exception('Audio URI is null or empty for id: ${a.id}');
+        }
+        final audioSource = AudioSource.uri(Uri.parse(a.uri!), tag: mediaItem);
+        sources.add(audioSource);
+      } catch (e) {
+        // Log or handle invalid audio gracefully
+        print('Failed to add audio id ${a.id}: $e');
+        // Optionally, continue without adding this audio
+        continue;
+      }
+    }
+
+    if (items.isEmpty || sources.isEmpty) {
+      print('No valid audio files to play in the playlist.');
+      return;
+    }
 
     queue.add(items);
 
-    final sources =
-        audios.map((a) {
-          return AudioSource.uri(
-            Uri.parse(a.uri ?? ""),
-            tag: MediaItem(
-              id: a.id.toString(),
-              title: a.title,
-              artist: a.artistOrUnknown,
-              album: a.albumOrUnknown,
-              duration: Duration(milliseconds: a.duration ?? 0),
-            ),
-          );
-        }).toList();
+    try {
+      await _player.setAudioSource(
+        ConcatenatingAudioSource(children: sources),
+        initialIndex: initIndex,
+      );
+    } catch (e) {
+      print('Error setting audio source: $e');
+      // Handle or notify user
+      return;
+    }
 
-    await _player.setAudioSource(
-      ConcatenatingAudioSource(children: sources),
-      initialIndex: startIndex,
+    if (autoRun) {
+      try {
+        play();
+      } catch (e) {
+        print('Error starting playback: $e');
+      }
+    }
+  }
+
+  Future<void> playAudio(AudioFile audio) async {
+    final index = queue.value.indexWhere(
+      (item) => item.id == audio.id.toString(),
     );
-
-    if (autoRun) play();
+    if (index != -1) {
+      await _player.seek(Duration.zero, index: index);
+      play();
+    }
   }
 
   @override
-  Future<void> play() async {
-    _player.play();
-  }
+  Future<void> play() => _player.play();
 
   @override
   Future<void> pause() => _player.pause();
+
   @override
   Future<void> stop() => _player.stop();
+
   @override
   Future<void> seek(Duration position) => _player.seek(position);
+
   @override
   Future<void> skipToNext() async {
     if (_player.hasNext) {
-      _player.seekToNext();
+      await _player.seekToNext();
     } else {
-      _player.seek(Duration(seconds: 0), index: 0);
+      await _player.seek(Duration.zero, index: 0);
     }
   }
 
   @override
-  Future<void> skipToPrevious() async {
-    if (_player.hasPrevious) {
-      _player.seekToPrevious();
-    } else {
-      _player.seek(
-        Duration(seconds: 0),
-        index: _player.audioSource!.sequence.length - 1,
-      );
-    }
-  }
+  Future<void> skipToPrevious() =>
+      _player.hasPrevious
+          ? _player.seekToPrevious()
+          : _player.seek(
+            Duration(seconds: 0),
+            index: _player.effectiveIndices!.length - 1,
+          );
 }
