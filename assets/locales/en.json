@@ -1,4 +1,14 @@
 {
+    "delete_files": "The selected files will be deleted",
+    "files_deleted_success": "The selected files have been deleted successfully",
+    "albums": "albums",
+    "folders": "folders",
+    "file_will_be_removed_from_playlist": "The file will be removed from the playlist",
+    "file_removed_from_playlist": "The file has been removed from the playlist",
+    "favorite": "Favorite",
+    "file_removed_from_favorites": "The file has been removed from favorites",
+    "file_added_to_favorites": "The file has been added to favorites",
+    "select_player_background": "Select player background",
     "selectAll": "Select All",
     "selected": "selected",
     "size": "Size",
@@ -8,6 +18,7 @@
     "searchAudioFile": "Search audio file...",
     "noResults": "No results",
     "searchPlaylist": "Search playlist...",
+    "searchAlbum": "Search album...",
     "noPlaylists": "No playlists",
     "audioPlural": "Audios",
     "searchArtist": "Search artist...",
@@ -59,5 +70,14 @@
     "playlistDeleted": "The playlist has been deleted",
     "playlistCreated": "Playlist created with name",
     "fileSetAsRingtone": "File set as ringtone",
-    "fileSetAsNotificationTone": "File set as notification tone"
+    "fileSetAsNotificationTone": "File set as notification tone",
+    "delete_confirmation": "Are you sure you want to delete this file?",
+    "delete_error": "Could not delete file.",
+    "delete_success": "File deleted successfully.",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "deselect_all": "Deselect All",
+    "share_audio_clips": "Share Audio Clips",
+    "playlist_created": "Playlist created successfully"
 }

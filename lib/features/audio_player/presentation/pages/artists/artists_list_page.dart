@@ -14,6 +14,7 @@ import 'package:mero_audio_player/features/audio_player/presentation/pages/artis
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 import 'package:mero_audio_player/injection.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 // Extend your artist model with ISuspensionBean
 class AzArtist implements ISuspensionBean {
@@ -45,14 +46,23 @@ class ArtistListPage extends StatefulWidget {
 class _ArtistListPageState extends State<ArtistListPage> {
   final TextEditingController controller = TextEditingController();
 
-  List<AzArtist> _buildAzList(List<dynamic> artists) {
+  List<AzArtist> _buildAzList(List<ArtistModel> artists) {
     List<AzArtist> list =
         artists.map((artist) {
-          String tag = artist.artist[0].toUpperCase();
-          return AzArtist(tag: tag, original: artist);
+          String firstChar = artist.artist[0];
+
+          if (RegExp(r'^[\u0600-\u06FF\u0750-\u077F]').hasMatch(firstChar)) {
+            return AzArtist(
+              tag: firstChar,
+              original: artist,
+            ); // حرف عربي بدون تغيير
+          } else {
+            // الحرف غير عربي - حوله إلى upper case
+            return AzArtist(tag: firstChar.toUpperCase(), original: artist);
+          }
         }).toList();
 
-    // Sort and set tags
+    // ترتيب القائمة وإعداد حالة عرض الشريط
     SuspensionUtil.sortListBySuspensionTag(list);
     SuspensionUtil.setShowSuspensionStatus(list);
 
@@ -85,84 +95,71 @@ class _ArtistListPageState extends State<ArtistListPage> {
                 final azList = _buildAzList(state.artists);
 
                 return AzListView(
-                  // indexBarAlignment:
-                  //     context.locale.languageCode == 'ar'
-                  //         ? Alignment.centerRight
-                  //         : Alignment.centerLeft,
+                  indexBarAlignment:
+                      context.locale.languageCode == 'ar'
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                   data: azList,
+
                   itemCount: azList.length,
                   itemBuilder: (context, index) {
                     final item = azList[index];
                     final artist = item.original;
 
-                    return InkWell(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => BlocProvider<ArtistListBloc>(
-                                  create:
-                                      (context) => ArtistListBloc(
-                                        repository: Injection.audioRepository,
-                                      )..add(
-                                        FetchSongsByArtist(
-                                          artistName: artist.artist,
+                    return Padding(
+                      padding: EdgeInsetsDirectional.only(start: 10.w),
+                      child: InkWell(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => BlocProvider<ArtistListBloc>(
+                                    create:
+                                        (context) => ArtistListBloc(
+                                          repository: Injection.audioRepository,
+                                        )..add(
+                                          FetchSongsByArtist(
+                                            artistName: artist.artist,
+                                          ),
                                         ),
-                                      ),
-                                  child: ArtistDetailPage(artist: artist),
-                                ),
-                          ),
-                        );
-                      },
-                      child: ArtistWidget(artist: artist),
+                                    child: ArtistDetailPage(artist: artist),
+                                  ),
+                            ),
+                          );
+                          context.read<ArtistListBloc>().add(FetchArtistList());
+                        },
+                        child: ArtistWidget(artist: artist),
+                      ),
                     );
                   },
                   indexBarMargin: EdgeInsets.zero,
                   indexBarOptions: IndexBarOptions(
+                    indexHintWidth: 50.w,
+                    textStyle: TextStyles.titleSmall.copyWith(
+                      color: Colors.white,
+                    ),
+
                     needRebuild: true,
                     selectTextStyle: TextStyles.titleMedium.copyWith(
                       color: Colors.white,
                     ),
                     selectItemDecoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.grey,
+                      color: globalBackgroundColor,
+                      border: Border.all(width: 0.1.r, color: Colors.white),
                     ),
+
                     indexHintAlignment: Alignment.center,
                     indexHintTextStyle: TextStyles.titleMedium.copyWith(
                       color: Colors.white,
                     ),
                     indexHintDecoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(10),
+                      color: globalBackgroundColor,
+
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                   ),
-                  susItemBuilder: (context, index) {
-                    final tag = azList[index].getSuspensionTag();
-                    return Container(
-                      height: 40.h,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      alignment:
-                          context.locale.languageCode == 'ar'
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                      decoration: BoxDecoration(
-                        gradient: gradientFromColor(
-                          globalBackgroundColor ?? Colors.black,
-                        ),
-                      ),
-                      child: Text(
-                        tag,
-                        style: TextStyles.titleLarge.copyWith(
-                          color: Colors.white,
-                        ),
-                        textAlign:
-                            context.locale.languageCode == 'ar'
-                                ? TextAlign.left
-                                : TextAlign.right,
-                      ),
-                    );
-                  },
                 );
               } else if (state is ArtistListError) {
                 return AppErrorText(errorMessage: state.message);

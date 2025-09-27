@@ -1,87 +1,74 @@
 package com.example.mero_audio_player
 
-import android.content.ContentValues
-import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import android.provider.Settings
-import androidx.annotation.NonNull
+import android.os.Environment
+import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
+import java.util.UUID
 
-class MainActivity: FlutterActivity() {
-    private val CHANNEL = " com.example.mero_audio_player/mychannel"
-
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        // تسجيل جميع الـ Plugins أولًا
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
+class MainActivity: AudioServiceActivity()  {
+    private val CHANNEL = "com.example.mero_audio_player/audio_trimmer"
+    
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
+            call, result ->
+            
+            when (call.method) {
+                "trimAudio"-> {
+                    val inputPath = call.argument<String>("inputPath")
+                    val startMs = call.argument<Int>("startMs") ?: 0
+                    val endMs = call.argument<Int>("endMs") ?: 30000
+                    
+                    if (inputPath == null) {
+                        result.error("INVALID_PATH", "Input path is null", null)
+                        return@setMethodCallHandler
+                    }
+                    
+                    // Validate input file exists
+                    val inputFile = File(inputPath)
+                    if (!inputFile.exists()) {
+                        result.error("FILE_NOT_FOUND", "Input file does not exist: $inputPath", null)
+                        return@setMethodCallHandler
+                    }
+                    
+                    try {
+                        // Create output file in cache directory
+                        val outputFile = File.createTempFile(
+                            "trimmed_${UUID.randomUUID()}",
+                            ".m4a",
+                            cacheDir
+                        )
+                        
+                        println("Trimming audio: $inputPath -> ${outputFile.absolutePath}")
+                        println("Time range: ${startMs}ms to ${endMs}ms")
+                        
+                        // بدل AudioTrimmer.trimAudio بـ:
+                        val success = AudioTrimmerWav.trimToWav(inputPath, outputFile.absolutePath, startMs.toLong(), endMs.toLong())
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "setRingtone" -> {
-                        val path = call.argument<String>("path")!!
-                        // التحقق من صلاحية WRITE_SETTINGS
-                        if (!Settings.System.canWrite(this)) {
-                            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                            intent.data = Uri.parse("package:$packageName")
-                            startActivity(intent)
-                            result.error("PERMISSION", "Need WRITE_SETTINGS permission", null)
-                            return@setMethodCallHandler
+                        
+                        if (success && outputFile.exists() && outputFile.length() > 0) {
+                            println("Audio trimming successful. Output file size: ${outputFile.length()} bytes")
+                            result.success(outputFile.absolutePath)
+                        } else {
+                            println("Audio trimming failed or output file is invalid")
+                            // Clean up failed output file
+                            if (outputFile.exists()) outputFile.delete()
+                            result.error("TRIMMING_FAILED", "Audio trimming failed or produced invalid output", null)
                         }
-
-                        val success = setRingtone(path)
-                        if (success) result.success(null)
-                        else result.error("ERROR", "Failed to set ringtone", null)
+                    } catch (e: Exception) {
+                        println("Exception during trimming: ${e.message}")
+                        e.printStackTrace()
+                        result.error("EXCEPTION", "Error during trimming: ${e.message}", e.stackTraceToString())
                     }
-
-                    "canWriteSettings" -> {
-                        // تعريف method للتحقق من صلاحية WRITE_SETTINGS
-                        result.success(Settings.System.canWrite(this))
-                    }
-
-                    else -> result.notImplemented()
+                }
+                else -> {
+                    result.notImplemented()
                 }
             }
-    }
-
-    private fun setRingtone(filePath: String): Boolean {
-        return try {
-            val file = File(filePath)
-            if (!file.exists()) return false
-
-            val mimeType = when(file.extension.lowercase()) {
-                "mp3" -> "audio/mp3"
-                "wav" -> "audio/wav"
-                "ogg" -> "audio/ogg"
-                "m4a", "aac" -> "audio/mp4"
-                "flac" -> "audio/flac"
-                else -> "audio/*"
-            }
-
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DATA, file.absolutePath)
-                put(MediaStore.MediaColumns.TITLE, file.nameWithoutExtension)
-                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(MediaStore.Audio.Media.IS_RINGTONE, true)
-                put(MediaStore.Audio.Media.IS_NOTIFICATION, false)
-                put(MediaStore.Audio.Media.IS_ALARM, true)
-                put(MediaStore.Audio.Media.IS_MUSIC, false)
-            }
-
-            val uri: Uri = MediaStore.Audio.Media.getContentUriForPath(file.absolutePath)!!
-            val newUri = contentResolver.insert(uri, values)
-            RingtoneManager.setActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE, newUri)
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
         }
     }
 }

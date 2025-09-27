@@ -96,8 +96,17 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
                             return AudioWidget(
                               audio: song,
                               audios: songs,
+                              playSource: PlaySource.artist,
+                              artist: song.artist,
                               selectionMode: selectionMode,
                               isSelected: selected.contains(song),
+                              onDelete: () {
+                                context.read<ArtistListBloc>().add(
+                                  FetchSongsByArtist(
+                                    artistName: song.artist ?? '',
+                                  ),
+                                );
+                              },
                               onTap:
                                   selectionMode
                                       ? () => toggleSelection(song)
@@ -123,9 +132,12 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
             if (selectionMode) ...[
               SelectionModeRowWidget(
                 onSelectAll: () {
-                  selected.addAll(audios);
+                  selected.length == audios.length
+                      ? selected.clear()
+                      : selected.addAll(audios);
                   setState(() {});
                 },
+
                 selected: selected,
                 audiosLength: audios.length,
               ),

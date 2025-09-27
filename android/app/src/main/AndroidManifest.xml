@@ -14,13 +14,13 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <application
         android:requestLegacyExternalStorage="true"
-        android:label="mero_audio_player"
+        android:label="Mero Audio Player"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
         <!-- Main Activity -->
         <activity
-            android:name="com.ryanheise.audioservice.AudioServiceActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

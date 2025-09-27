@@ -1,21 +1,21 @@
 import 'package:equatable/equatable.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 
-abstract class RecentlyPlayedEvent extends Equatable {
+abstract class RingtoneEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-class LoadRecentlyPlayed extends RecentlyPlayedEvent {}
-
-class SetRecentlyPlayed extends RecentlyPlayedEvent {
-  final RecentlyPlayedAudio audio;
-
-  SetRecentlyPlayed(this.audio);
-
-  @override
-  List<Object?> get props => [audio];
+class LoadAudio extends RingtoneEvent {
+  final String path;
+  LoadAudio(this.path);
 }
 
-class ClearRecentlyPlayed extends RecentlyPlayedEvent {}
-// 1000643182
+class ChangeSlider extends RingtoneEvent {
+  final double start;
+  final double end;
+  ChangeSlider(this.start, this.end);
+}
+
+class PreviewSelection extends RingtoneEvent {}
+
+class SetRingtone extends RingtoneEvent {}

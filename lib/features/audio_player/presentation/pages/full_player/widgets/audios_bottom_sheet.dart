@@ -4,6 +4,7 @@ import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
+import 'package:mero_audio_player/injection.dart';
 
 class AudiosBottomSheet extends StatefulWidget {
   final List<AudioFile> audios;
@@ -68,7 +69,12 @@ class _AudiosBottomSheetState extends State<AudiosBottomSheet> {
             itemCount: widget.audios.length,
             itemBuilder: (context, index) {
               final audio = widget.audios[index];
-              return AudioWidget(audio: audio, audios: widget.audios);
+              return AudioWidget(
+                showOptions: false,
+                audio: audio,
+                audios: widget.audios,
+                playSource: playSource!,
+              );
             },
           ),
         ],

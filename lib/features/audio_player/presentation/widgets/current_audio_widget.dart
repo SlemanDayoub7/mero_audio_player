@@ -77,6 +77,7 @@ class _CurrentAudioWidgetState extends State<CurrentAudioWidget> {
                     RotatingWhilePlayingWidget(
                       player: player,
                       child: AudioArtworkWidget(
+                        backgroundColor: Colors.grey.withOpacity(0.4),
                         audio: state.current!,
                         size: 50.sp,
                       ),

@@ -72,7 +72,7 @@ class AudioFile extends HiveObject {
         title: song.title,
         artist: song.artist,
         album: song.album,
-        uri: song.data,
+        uri: song.uri,
         duration: song.duration,
         size: song.size,
         genre: song.genre,

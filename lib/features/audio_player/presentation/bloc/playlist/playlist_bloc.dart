@@ -16,8 +16,14 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     on<LoadPlaylists>((event, emit) async {
       emit(PlaylistLoading());
       try {
-        final playlists = await repository.getAllPlaylists();
+        var playlists = await repository.getAllPlaylists();
         _fullPlayLists = playlists;
+        if (_fullPlayLists.indexWhere((e) => e.name == '0') == -1) {
+          await repository.createPlaylist(
+            Playlist(name: '0', audios: [], id: ''),
+          );
+          playlists = await repository.getAllPlaylists();
+        }
         emit(PlaylistLoaded(playlists: playlists));
       } catch (e) {
         emit(PlaylistError(message: e.toString()));
@@ -61,6 +67,11 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       }
     });
     on<AddAudioToPlaylist>((event, emit) async {
+      if (_fullPlayLists.indexWhere((e) => e.name == '0') == -1) {
+        await repository.createPlaylist(
+          Playlist(name: event.name, audios: [], id: ''),
+        );
+      }
       await repository.addAudioToPlaylist(event.name, event.audio);
       add(LoadPlaylists());
     });
@@ -74,5 +85,10 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       await repository.deletePlaylist(event.name);
       add(LoadPlaylists());
     });
+  }
+  bool isFavorite(int id) {
+    List<AudioFile> favoriteList =
+        _fullPlayLists.firstWhere((e) => e.name == '0').audios;
+    return (favoriteList.indexWhere((e) => e.id == id) >= 0);
   }
 }

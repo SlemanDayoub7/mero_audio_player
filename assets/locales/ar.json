@@ -1,4 +1,14 @@
 {
+    "delete_files": "سيتم حذف الملفات المحددة",
+    "files_deleted_success": "تم حذف الملفات المحددة بنجاح",
+    "albums": "ألبومات",
+    "folders": "مجلدات",
+    "file_will_be_removed_from_playlist": "سيتم ازالة الملف من قائمة التشغيل",
+    "file_removed_from_playlist": "تم ازالة الملف من قائمة التشغيل",
+    "favorite": "المفضلة",
+    "file_removed_from_favorites": "تم ازالة الملف من المفضلة",
+    "file_added_to_favorites": "تم اضافة الملف الى المفضلة",
+    "select_player_background": "اختر خلفية المشغل",
     "selectAll": "تحديد الكل",
     "selected": "محددة",
     "size": "الحجم",
@@ -8,6 +18,7 @@
     "searchAudioFile": "ابحث عن الملف الصوتي...",
     "noResults": "لا توجد نتائج",
     "searchPlaylist": "ابحث عن قائمة تشغيل...",
+    "searchAlbum": "ابحث عن الألبوم...",
     "noPlaylists": "لا يوجد قوائم تشغيل",
     "audioPlural": "صوتيات",
     "searchArtist": "ابحث عن الفنان...",
@@ -59,5 +70,14 @@
     "playlistDeleted": "تم حذف قائمة التشغيل",
     "playlistCreated": "تم انشاء قائمة تشغيل بالاسم",
     "fileSetAsRingtone": "تم تعيين الملف كنغمة رنين",
-    "fileSetAsNotificationTone": "تم تعيين الملف كنغمة للاشعارات"
+    "fileSetAsNotificationTone": "تم تعيين الملف كنغمة للاشعارات",
+    "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذا الملف؟",
+    "delete_error": "تعذر حذف الملف.",
+    "delete_success": "تم حذف الملف بنجاح.",
+    "delete": "حذف",
+    "confirm": "تأكيد",
+    "ok": "موافق",
+    "deselect_all": "إلغاء تحديد الكل",
+    "share_audio_clips": "مشاركة مقاطع صوتية",
+    "playlist_created": "تم إنشاء قائمة تشغيل بالاسم"
 }

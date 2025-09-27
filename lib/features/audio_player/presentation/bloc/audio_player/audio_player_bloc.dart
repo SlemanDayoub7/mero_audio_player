@@ -138,6 +138,7 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
     final RecentlyPlayedAudio recentlyPlayedAudio = RecentlyPlayedAudio(
       id: current!.id.toString(),
       playListName: currentPlayListName,
+      album: current.album ?? '',
       artist: current.artist ?? '',
       source: playSource!,
     );

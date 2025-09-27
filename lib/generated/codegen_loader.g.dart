@@ -3,6 +3,16 @@
 // ignore_for_file: constant_identifier_names
 
 abstract class  LocaleKeys {
+  static const delete_files = 'delete_files';
+  static const files_deleted_success = 'files_deleted_success';
+  static const albums = 'albums';
+  static const folders = 'folders';
+  static const file_will_be_removed_from_playlist = 'file_will_be_removed_from_playlist';
+  static const file_removed_from_playlist = 'file_removed_from_playlist';
+  static const favorite = 'favorite';
+  static const file_removed_from_favorites = 'file_removed_from_favorites';
+  static const file_added_to_favorites = 'file_added_to_favorites';
+  static const select_player_background = 'select_player_background';
   static const selectAll = 'selectAll';
   static const selected = 'selected';
   static const size = 'size';
@@ -12,6 +22,7 @@ abstract class  LocaleKeys {
   static const searchAudioFile = 'searchAudioFile';
   static const noResults = 'noResults';
   static const searchPlaylist = 'searchPlaylist';
+  static const searchAlbum = 'searchAlbum';
   static const noPlaylists = 'noPlaylists';
   static const audioPlural = 'audioPlural';
   static const searchArtist = 'searchArtist';
@@ -64,5 +75,14 @@ abstract class  LocaleKeys {
   static const playlistCreated = 'playlistCreated';
   static const fileSetAsRingtone = 'fileSetAsRingtone';
   static const fileSetAsNotificationTone = 'fileSetAsNotificationTone';
+  static const delete_confirmation = 'delete_confirmation';
+  static const delete_error = 'delete_error';
+  static const delete_success = 'delete_success';
+  static const delete = 'delete';
+  static const confirm = 'confirm';
+  static const ok = 'ok';
+  static const deselect_all = 'deselect_all';
+  static const share_audio_clips = 'share_audio_clips';
+  static const playlist_created = 'playlist_created';
 
 }

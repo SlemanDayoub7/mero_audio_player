@@ -5,6 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart' show Hive;
 import 'package:mero_audio_player/core/locale_cubit.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/artist_list/artist_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
 
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
@@ -14,14 +18,14 @@ class AppDrawer extends StatelessWidget {
   final Function()? onChangeBackground;
   final Function()? onChangeLanguage;
   final Function()? onPrivacyPolicy;
-  final Function()? onHowAreWe;
+  final Function()? onAboutUs;
 
   const AppDrawer({
     Key? key,
     this.onChangeBackground,
     this.onChangeLanguage,
     this.onPrivacyPolicy,
-    this.onHowAreWe,
+    this.onAboutUs,
   }) : super(key: key);
 
   @override
@@ -48,6 +52,10 @@ class AppDrawer extends StatelessWidget {
                 context.read<LocaleCubit>().changeLocale(newLocale);
                 var box = await Hive.openBox('settings');
                 await box.put('locale', newLocale.languageCode);
+                context.read<PlaylistBloc>().add(LoadPlaylists());
+                context.read<ArtistListBloc>().add(FetchArtistList());
+                context.read<AudioListBloc>().add(FetchAudioList());
+                context.read<AlbumListBloc>().add(FetchAlbumList());
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => MainScreen()),
                 );
@@ -98,7 +106,7 @@ class AppDrawer extends StatelessWidget {
                 LocaleKeys.aboutUs.tr(),
                 style: TextStyles.titleLarge.copyWith(color: Colors.white),
               ),
-              onTap: onHowAreWe,
+              onTap: onAboutUs,
             ),
             Spacer(),
             Padding(

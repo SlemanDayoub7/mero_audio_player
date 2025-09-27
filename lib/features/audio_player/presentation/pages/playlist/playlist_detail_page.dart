@@ -1,15 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mero_audio_player/core/themes/app_background_image.dart';
-import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
+import 'package:mero_audio_player/core/widgets/app_dialog.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
+import 'package:mero_audio_player/core/widgets/generic_app_bar.dart';
+import 'package:mero_audio_player/core/widgets/generic_scaffold.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/playlist.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/full_player_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/current_audio_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/sort_order_playback_widget.dart';
+import 'package:mero_audio_player/gen/assets.gen.dart';
+import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 import 'package:mero_audio_player/injection.dart';
 
 import '../../bloc/playlist/playlist_bloc.dart';
@@ -35,87 +41,109 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   Widget build(BuildContext context) {
     final playlistBloc = context.read<PlaylistBloc>();
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.white),
-          shadowColor: Colors.transparent,
-          backgroundColor: Colors.transparent,
-          title: Text(
-            widget.playlist.name,
-            style: TextStyles.displayLarge.copyWith(color: Colors.white),
-          ),
-          // backgroundColor: Colors.transparent,
-          // title: Text(widget.playlist.name,),
-        ),
-        body: Stack(
-          children: [
-            AppGradientBackground(),
-
-            Padding(
-              padding: EdgeInsets.only(bottom: 100.h, top: 90.h),
-              child: Column(
-                children: [
-                  SortOrderPlaybackWidget(showSortOrder: false),
-                  Expanded(
-                    child: ReorderableListView.builder(
-                      itemCount: audios.length,
-                      onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (newIndex > oldIndex) newIndex -= 1;
-                          final item = audios.removeAt(oldIndex);
-                          audios.insert(newIndex, item);
-                        });
-                        // Update playlist in Hive
-                        final updatedPlaylist = Playlist(
-                          name: widget.playlist.name,
-                          audios: audios,
-                          id: '',
-                        );
-                        playlistBloc.add(DeletePlaylist(widget.playlist.name));
-                        playlistBloc.add(CreatePlaylist(updatedPlaylist.name));
-                        for (var audio in audios) {
-                          playlistBloc.add(
-                            AddAudioToPlaylist(updatedPlaylist.name, audio),
-                          );
-                        }
-                      },
-                      itemBuilder: (context, index) {
-                        final audio = audios[index];
-                        playSource = PlaySource.playlist;
-                        currentPlayListName = widget.playlist.name;
-                        return AudioWidget(
-                          audio: audio,
-                          playListName: widget.playlist.name,
-                          key: ValueKey(audio.id),
-                          audios: audios,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // CurrentAudioWidget at the bottom
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: CurrentAudioWidget(),
-            ),
-          ],
-        ),
-        // floatingActionButton: FloatingActionButton.extended(
-        //   label: const Text("Play All"),
-        //   icon: const Icon(Icons.play_arrow),
-        //   onPressed: () {
-        //     if (audios.isNotEmpty) {
-        //       audioBloc.add(PlayAudio(audio: audios.first, audios: audios));
-        //     }
-        //   },
-        // ),
+    return GenericScaffold(
+      appBar: GenericAppBar(
+        title:
+            widget.playlist.name == '0'
+                ? LocaleKeys.favorite.tr()
+                : widget.playlist.name,
       ),
+      body: Stack(
+        children: [
+          AppGradientBackground(),
+
+          Padding(
+            padding: EdgeInsets.only(bottom: 100.h, top: 90.h),
+            child: Column(
+              children: [
+                SortOrderPlaybackWidget(showSortOrder: false),
+                Expanded(
+                  child: ReorderableListView.builder(
+                    itemCount: audios.length,
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) newIndex -= 1;
+                        final item = audios.removeAt(oldIndex);
+                        audios.insert(newIndex, item);
+                      });
+                      // Update playlist in Hive
+                      final updatedPlaylist = Playlist(
+                        name: widget.playlist.name,
+                        audios: audios,
+                        id: '',
+                      );
+                      playlistBloc.add(DeletePlaylist(widget.playlist.name));
+                      playlistBloc.add(CreatePlaylist(updatedPlaylist.name));
+                      for (var audio in audios) {
+                        playlistBloc.add(
+                          AddAudioToPlaylist(updatedPlaylist.name, audio),
+                        );
+                      }
+                    },
+                    itemBuilder: (context, index) {
+                      final audio = audios[index];
+                      playSource = PlaySource.playlist;
+                      currentPlayListName = widget.playlist.name;
+                      return Row(
+                        key: ValueKey(audio.id),
+                        children: [
+                          Expanded(
+                            child: AudioWidget(
+                              audio: audio,
+                              playSource: PlaySource.playlist,
+                              playListName: widget.playlist.name,
+
+                              audios: audios,
+                            ),
+                          ),
+                          ControlIconWidget(
+                            size: 25.sp,
+                            borderColor: Colors.grey,
+                            onPressed: () async {
+                              await confirmAndExecute(
+                                context: context,
+                                confirmMessage:
+                                    LocaleKeys
+                                        .file_will_be_removed_from_playlist
+                                        .tr(),
+                                action: () async {
+                                  context.read<PlaylistBloc>().add(
+                                    RemoveAudioFromPlaylist(
+                                      widget.playlist.name,
+                                      audio,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                successMessage:
+                                    LocaleKeys.file_removed_from_playlist.tr(),
+                                errorMessage: LocaleKeys.delete_error.tr(),
+                              );
+                            },
+                            svgGenImage: Assets.icons.removeAll,
+                          ),
+                          context.emptySizedWidthLow,
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // CurrentAudioWidget at the bottom
+          Align(alignment: Alignment.bottomCenter, child: CurrentAudioWidget()),
+        ],
+      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   label: const Text("Play All"),
+      //   icon: const Icon(Icons.play_arrow),
+      //   onPressed: () {
+      //     if (audios.isNotEmpty) {
+      //       audioBloc.add(PlayAudio(audio: audios.first, audios: audios));
+      //     }
+      //   },
+      // ),
     );
   }
 }

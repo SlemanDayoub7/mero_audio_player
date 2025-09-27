@@ -78,22 +78,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.25"
-  audio_video_progress_bar:
-    dependency: "direct main"
-    description:
-      name: audio_video_progress_bar
-      sha256: "552b1f73c56c4c88407999e0a8507176f60c56de3e6d63bc20a0eab48467d4c9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
-  audio_waveforms:
-    dependency: "direct main"
-    description:
-      name: audio_waveforms
-      sha256: "658fef41bbab299184b65ba2fd749e8ec658c1f7d54a21f7cf97fa96b173b4ce"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.0"
   audioplayers:
     dependency: "direct main"
     description:
@@ -382,22 +366,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  ffmpeg_kit_flutter_new_audio:
-    dependency: "direct main"
-    description:
-      name: ffmpeg_kit_flutter_new_audio
-      sha256: "2a7756ee7882e8350624dacb012bd785ba2c1a4ad5f229f16c3f0a63f7bdd479"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
-  ffmpeg_kit_flutter_platform_interface:
-    dependency: transitive
-    description:
-      name: ffmpeg_kit_flutter_platform_interface
-      sha256: addf046ae44e190ad0101b2fde2ad909a3cd08a2a109f6106d2f7048b7abedee
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   file:
     dependency: transitive
     description:
@@ -451,14 +419,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_audio_waveforms:
-    dependency: "direct main"
-    description:
-      name: flutter_audio_waveforms
-      sha256: "425dda9ee5ef9bb2ff2a2000b19ec595593b3baba6a1274da8d1d729846a144b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.1+8"
   flutter_bloc:
     dependency: "direct main"
     description:
@@ -818,6 +778,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  lottie:
+    dependency: "direct main"
+    description:
+      name: lottie
+      sha256: c5fa04a80a620066c15cf19cc44773e19e9b38e989ff23ea32e5903ef1015950
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.1"
   macros:
     dependency: transitive
     description:
@@ -850,6 +818,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.1"
+  media_store_plus:
+    dependency: "direct main"
+    description:
+      name: media_store_plus
+      sha256: "4b4971365e00a4ed9fde14abf40d7c27475b66b8bba9bf43478ae2ecb449df20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
   meta:
     dependency: transitive
     description:
@@ -874,14 +850,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.4"
-  native_audio_trimmer:
-    dependency: "direct main"
-    description:
-      name: native_audio_trimmer
-      sha256: d52946a0f1640e2c40194f78ae885578799bc2aa3bcec934f89861ea2a03ac87
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   nested:
     dependency: transitive
     description:

@@ -1,104 +1,102 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:hive/hive.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/playlist.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
-import 'package:mero_audio_player/features/audio_player/domain/repositories/audio_repository.dart';
-import 'package:mero_audio_player/features/audio_player/domain/repositories/playlists_repository.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/recently_played/recently_played_event.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/recently_played/recently_played_state.dart';
 
-class RecentlyPlayedBloc
-    extends Bloc<RecentlyPlayedEvent, RecentlyPlayedState> {
-  static const _boxName = 'recentlyPlayedBox';
-  late Box _box;
+class RingtoneBloc extends Bloc<RingtoneEvent, RingtoneState> {
+  static const platform = MethodChannel(
+    'com.example.mero_audio_player/audio_trimmer',
+  );
 
-  final PlaylistRepository playlistRepository;
-  final AudioRepository audioRepository;
-  RecentlyPlayedBloc({
-    required this.playlistRepository,
-    required this.audioRepository,
-  }) : super(RecentlyPlayedInitial()) {
-    on<LoadRecentlyPlayed>(_onLoad);
-    on<SetRecentlyPlayed>(_onSet);
-    on<ClearRecentlyPlayed>(_onClear);
-    _initHive();
+  final AudioPlayer _player = AudioPlayer();
+  Timer? _stopTimer;
+  String _audioPath = '';
+
+  RingtoneBloc() : super(const RingtoneState()) {
+    on<LoadAudio>(_loadAudio);
+    on<ChangeSlider>(_changeSlider);
+    on<PreviewSelection>(_preview);
+    on<SetRingtone>(_setRingtone);
   }
 
-  Future<void> _initHive() async {
-    if (!Hive.isBoxOpen(_boxName)) {
-      _box = await Hive.openBox(_boxName);
-    } else {
-      _box = Hive.box(_boxName);
-    }
-    add(LoadRecentlyPlayed());
+  Future<void> _loadAudio(LoadAudio event, Emitter<RingtoneState> emit) async {
+    _audioPath = event.path;
+    emit(state.copyWith(loading: true));
+
+    await _player.setSource(DeviceFileSource(_audioPath));
+
+    // Listen to duration once
+    _player.onDurationChanged.listen((d) {
+      if (d.inMilliseconds > 0) {
+        final dur = d.inMilliseconds / 1000;
+        emit(
+          state.copyWith(
+            loading: false,
+            duration: dur,
+            start: 0,
+            end: dur > 30 ? 30 : dur,
+          ),
+        );
+      }
+    });
+
+    // trigger the duration event
+    await _player.resume();
+    Future.delayed(const Duration(milliseconds: 300), () => _player.pause());
   }
 
-  Future<void> _onLoad(
-    LoadRecentlyPlayed event,
-    Emitter<RecentlyPlayedState> emit,
+  void _changeSlider(ChangeSlider event, Emitter<RingtoneState> emit) {
+    double start = event.start;
+    double end = event.end;
+    if (end - start > 30) end = start + 30;
+    emit(state.copyWith(start: start, end: end));
+  }
+
+  Future<void> _preview(
+    PreviewSelection event,
+    Emitter<RingtoneState> emit,
   ) async {
-    emit(RecentlyPlayedLoading());
+    _stopTimer?.cancel();
+    await _player.stop();
+    await _player.setSource(DeviceFileSource(_audioPath));
+    await _player.seek(Duration(seconds: state.start.toInt()));
+    await _player.resume();
+
+    _stopTimer = Timer(
+      Duration(milliseconds: ((state.end - state.start) * 1000).toInt()),
+      () => _player.stop(),
+    );
+  }
+
+  Future<void> _setRingtone(
+    SetRingtone event,
+    Emitter<RingtoneState> emit,
+  ) async {
+    emit(state.copyWith(trimming: true));
     try {
-      final Map<String, dynamic>? storedMap =
-          _box.get('lastPlayed')?.cast<String, dynamic>();
-      if (storedMap == null) {
-        emit(RecentlyPlayedLoaded(audio: null, audios: []));
-        return;
-      }
+      final trimmedPath = await platform.invokeMethod('trimAudio', {
+        'inputPath': _audioPath,
+        'startMs': (state.start * 1000).round(),
+        'endMs': (state.end * 1000).round(),
+      });
 
-      RecentlyPlayedAudio audio = RecentlyPlayedAudio.fromMap(storedMap);
-
-      // Implement your check here to verify if audio exists on device, e.g.:
-      final exists = await _checkIfAudioExists(audio.id);
-      if (!exists) {
-        await _box.delete('lastPlayed');
-        emit(RecentlyPlayedLoaded(audio: null, audios: []));
-        return;
+      if (trimmedPath != null) {
+        // e.g., RingtoneSet.setRingtoneFromFile(File(trimmedPath));
+        final tmp = File(trimmedPath);
+        if (await tmp.exists()) await tmp.delete();
       }
-      List<AudioFile> audios = [];
-      switch (audio.source) {
-        case PlaySource.artist:
-          audios = await audioRepository.fetchSongsByArtist(audio.artist);
-          break;
-        case PlaySource.audioList:
-          audios = await audioRepository.fetchAudioFiles();
-          break;
-        case PlaySource.playlist:
-          List<Playlist> playLists = await playlistRepository.getAllPlaylists();
-
-          break;
-      }
-      emit(RecentlyPlayedLoaded(audio: audio, audios: audios));
-    } catch (e) {
-      emit(RecentlyPlayedError('Failed to load last played audio'));
+    } finally {
+      emit(state.copyWith(trimming: false));
     }
   }
 
-  Future<void> _onSet(
-    SetRecentlyPlayed event,
-    Emitter<RecentlyPlayedState> emit,
-  ) async {
-    try {
-      await _box.put('lastPlayed', event.audio.toMap());
-      emit(RecentlyPlayedLoaded(audio: event.audio, audios: []));
-    } catch (e) {
-      emit(RecentlyPlayedError('Failed to save last played audio'));
-    }
-  }
-
-  Future<void> _onClear(
-    ClearRecentlyPlayed event,
-    Emitter<RecentlyPlayedState> emit,
-  ) async {
-    await _box.delete('lastPlayed');
-    emit(RecentlyPlayedLoaded(audio: null, audios: []));
-  }
-
-  Future<bool> _checkIfAudioExists(String audioId) async {
-    // Implement device or repository check whether audio file still exists
-    // Return true if exists, false if deleted/missing
-    return true; // Placeholder for demo
+  @override
+  Future<void> close() {
+    _player.dispose();
+    _stopTimer?.cancel();
+    return super.close();
   }
 }

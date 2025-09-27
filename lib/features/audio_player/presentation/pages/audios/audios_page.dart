@@ -10,13 +10,16 @@ import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/selection_mode_row_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/sort_order_playback_widget.dart';
+import 'package:mero_audio_player/features/root_page.dart';
 
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
+import 'package:mero_audio_player/injection.dart';
 
 import '../../bloc/audio_list/audio_list_bloc.dart';
 
@@ -117,6 +120,7 @@ class _AudiosPageState extends State<AudiosPage> {
                             audio: audio,
                             audios: audios,
                             selectionMode: selectionMode,
+                            playSource: PlaySource.audioList,
                             isSelected: selected.contains(audio),
                             onTap:
                                 selectionMode
@@ -131,6 +135,7 @@ class _AudiosPageState extends State<AudiosPage> {
                           );
                         },
                       ),
+
                       // ElevatedButton(
                       //   onPressed: () {
                       //     Navigator.push(
@@ -164,6 +169,7 @@ class _AudiosPageState extends State<AudiosPage> {
                       //   ),
                       if (selectionMode) ...[
                         SelectionModeRowWidget(
+                          playSource: PlaySource.audioList,
                           bottomMargin: 0,
                           onSelectAll: () {
                             selected.length == audios.length

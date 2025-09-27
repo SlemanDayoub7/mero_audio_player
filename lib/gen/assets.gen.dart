@@ -15,8 +15,15 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/album.svg
+  SvgGenImage get album => const SvgGenImage('assets/icons/album.svg');
+
   /// File path: assets/icons/back.svg
   SvgGenImage get back => const SvgGenImage('assets/icons/back.svg');
+
+  /// File path: assets/icons/backward_10_second.svg
+  SvgGenImage get backward10Second =>
+      const SvgGenImage('assets/icons/backward_10_second.svg');
 
   /// File path: assets/icons/cut.svg
   SvgGenImage get cut => const SvgGenImage('assets/icons/cut.svg');
@@ -24,6 +31,29 @@ class $AssetsIconsGen {
   /// File path: assets/icons/delete_playlist.svg
   SvgGenImage get deletePlaylist =>
       const SvgGenImage('assets/icons/delete_playlist.svg');
+
+  /// File path: assets/icons/favorite.svg
+  SvgGenImage get favorite => const SvgGenImage('assets/icons/favorite.svg');
+
+  /// File path: assets/icons/favorite_fill.svg
+  SvgGenImage get favoriteFill =>
+      const SvgGenImage('assets/icons/favorite_fill.svg');
+
+  /// File path: assets/icons/favorite_list.svg
+  SvgGenImage get favoriteList =>
+      const SvgGenImage('assets/icons/favorite_list.svg');
+
+  /// File path: assets/icons/favorite_outline.svg
+  SvgGenImage get favoriteOutline =>
+      const SvgGenImage('assets/icons/favorite_outline.svg');
+
+  /// File path: assets/icons/folder_music.svg
+  SvgGenImage get folderMusic =>
+      const SvgGenImage('assets/icons/folder_music.svg');
+
+  /// File path: assets/icons/forward_10_seconds.svg
+  SvgGenImage get forward10Seconds =>
+      const SvgGenImage('assets/icons/forward_10_seconds.svg');
 
   /// File path: assets/icons/music.svg
   SvgGenImage get music => const SvgGenImage('assets/icons/music.svg');
@@ -42,6 +72,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/music_library.svg
   SvgGenImage get musicLibrary =>
       const SvgGenImage('assets/icons/music_library.svg');
+
+  /// File path: assets/icons/music_note.svg
+  SvgGenImage get musicNote => const SvgGenImage('assets/icons/music_note.svg');
 
   /// File path: assets/icons/music_remove.svg
   SvgGenImage get musicRemove =>
@@ -70,6 +103,13 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/playlist.svg
   SvgGenImage get playlist => const SvgGenImage('assets/icons/playlist.svg');
+
+  /// File path: assets/icons/playlist_add.svg
+  SvgGenImage get playlistAdd =>
+      const SvgGenImage('assets/icons/playlist_add.svg');
+
+  /// File path: assets/icons/remove_all.svg
+  SvgGenImage get removeAll => const SvgGenImage('assets/icons/remove_all.svg');
 
   /// File path: assets/icons/repeate.svg
   SvgGenImage get repeate => const SvgGenImage('assets/icons/repeate.svg');
@@ -100,14 +140,23 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<SvgGenImage> get values => [
+        album,
         back,
+        backward10Second,
         cut,
         deletePlaylist,
+        favorite,
+        favoriteFill,
+        favoriteList,
+        favoriteOutline,
+        folderMusic,
+        forward10Seconds,
         music,
         musicAdd,
         musicArtist,
         musicEditor,
         musicLibrary,
+        musicNote,
         musicRemove,
         musicSearch,
         musicSettings,
@@ -116,6 +165,8 @@ class $AssetsIconsGen {
         pause,
         play,
         playlist,
+        playlistAdd,
+        removeAll,
         repeate,
         repeateOne,
         ringtone,
@@ -129,60 +180,6 @@ class $AssetsIconsGen {
 
 class $AssetsImagesGen {
   const $AssetsImagesGen();
-
-  /// File path: assets/images/10.jpg
-  AssetGenImage get a10 => const AssetGenImage('assets/images/10.jpg');
-
-  /// File path: assets/images/5.jpg
-  AssetGenImage get a5 => const AssetGenImage('assets/images/5.jpg');
-
-  /// File path: assets/images/6.jpg
-  AssetGenImage get a6 => const AssetGenImage('assets/images/6.jpg');
-
-  /// File path: assets/images/7.jpg
-  AssetGenImage get a7 => const AssetGenImage('assets/images/7.jpg');
-
-  /// File path: assets/images/8.jpg
-  AssetGenImage get a8 => const AssetGenImage('assets/images/8.jpg');
-
-  /// File path: assets/images/9.jpg
-  AssetGenImage get a9 => const AssetGenImage('assets/images/9.jpg');
-
-  /// File path: assets/images/IMG_20210310_143839_752.jpg
-  AssetGenImage get img20210310143839752 =>
-      const AssetGenImage('assets/images/IMG_20210310_143839_752.jpg');
-
-  /// File path: assets/images/IMG_20210310_144006_975.jpg
-  AssetGenImage get img20210310144006975 =>
-      const AssetGenImage('assets/images/IMG_20210310_144006_975.jpg');
-
-  /// File path: assets/images/IMG_20210310_144019_215.jpg
-  AssetGenImage get img20210310144019215 =>
-      const AssetGenImage('assets/images/IMG_20210310_144019_215.jpg');
-
-  /// File path: assets/images/IMG_20210317_220114_524.jpg
-  AssetGenImage get img20210317220114524 =>
-      const AssetGenImage('assets/images/IMG_20210317_220114_524.jpg');
-
-  /// File path: assets/images/IMG_20210317_220116_478.jpg
-  AssetGenImage get img20210317220116478 =>
-      const AssetGenImage('assets/images/IMG_20210317_220116_478.jpg');
-
-  /// File path: assets/images/IMG_20210427_150040_778.jpg
-  AssetGenImage get img20210427150040778 =>
-      const AssetGenImage('assets/images/IMG_20210427_150040_778.jpg');
-
-  /// File path: assets/images/IMG_20210427_173646_503.jpg
-  AssetGenImage get img20210427173646503 =>
-      const AssetGenImage('assets/images/IMG_20210427_173646_503.jpg');
-
-  /// File path: assets/images/IMG_20210427_173724_207.jpg
-  AssetGenImage get img20210427173724207 =>
-      const AssetGenImage('assets/images/IMG_20210427_173724_207.jpg');
-
-  /// File path: assets/images/IMG_20210427_174554_079.jpg
-  AssetGenImage get img20210427174554079 =>
-      const AssetGenImage('assets/images/IMG_20210427_174554_079.jpg');
 
   /// File path: assets/images/background.jpg
   AssetGenImage get background =>
@@ -201,51 +198,64 @@ class $AssetsImagesGen {
   /// File path: assets/images/bg_two.jpg
   AssetGenImage get bgTwo => const AssetGenImage('assets/images/bg_two.jpg');
 
-  /// File path: assets/images/bg_video_one.png
-  AssetGenImage get bgVideoOne =>
-      const AssetGenImage('assets/images/bg_video_one.png');
+  /// File path: assets/images/mate.jpg
+  AssetGenImage get mate => const AssetGenImage('assets/images/mate.jpg');
 
   /// File path: assets/images/mero.jpg
   AssetGenImage get mero => const AssetGenImage('assets/images/mero.jpg');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
-        a10,
-        a5,
-        a6,
-        a7,
-        a8,
-        a9,
-        img20210310143839752,
-        img20210310144006975,
-        img20210310144019215,
-        img20210317220114524,
-        img20210317220116478,
-        img20210427150040778,
-        img20210427173646503,
-        img20210427173724207,
-        img20210427174554079,
-        background,
-        bgFour,
-        bgOne,
-        bgThree,
-        bgTwo,
-        bgVideoOne,
-        mero
-      ];
+  List<AssetGenImage> get values =>
+      [background, bgFour, bgOne, bgThree, bgTwo, mate, mero];
 }
 
-class $AssetsVideosGen {
-  const $AssetsVideosGen();
+class $AssetsLocalesGen {
+  const $AssetsLocalesGen();
 
-  /// File path: assets/videos/rain_one.mp4
-  String get rainOne => 'assets/videos/rain_one.mp4';
+  /// File path: assets/locales/ar.json
+  String get ar => 'assets/locales/ar.json';
 
-  /// File path: assets/videos/sea_one.mp4
-  String get seaOne => 'assets/videos/sea_one.mp4';
+  /// File path: assets/locales/en.json
+  String get en => 'assets/locales/en.json';
 
   /// List of all assets
-  List<String> get values => [rainOne, seaOne];
+  List<String> get values => [ar, en];
+}
+
+class $AssetsLottieGen {
+  const $AssetsLottieGen();
+
+  /// File path: assets/lottie/Crazy bottle rocker.json
+  String get crazyBottleRocker => 'assets/lottie/Crazy bottle rocker.json';
+
+  /// File path: assets/lottie/Decent Soundwaves.json
+  String get decentSoundwaves => 'assets/lottie/Decent Soundwaves.json';
+
+  /// File path: assets/lottie/Happy Spaceman.json
+  String get happySpaceman => 'assets/lottie/Happy Spaceman.json';
+
+  /// File path: assets/lottie/Music Note Character.json
+  String get musicNoteCharacter => 'assets/lottie/Music Note Character.json';
+
+  /// File path: assets/lottie/Play dvd, disk.json
+  String get playDvdDisk => 'assets/lottie/Play dvd, disk.json';
+
+  /// File path: assets/lottie/Sound Animation.json
+  String get soundAnimation => 'assets/lottie/Sound Animation.json';
+
+  /// File path: assets/lottie/Tiger Happy.json
+  String get tigerHappy => 'assets/lottie/Tiger Happy.json';
+
+  /// List of all assets
+  List<String> get values => [
+        crazyBottleRocker,
+        decentSoundwaves,
+        happySpaceman,
+        musicNoteCharacter,
+        playDvdDisk,
+        soundAnimation,
+        tigerHappy
+      ];
 }
 
 class Assets {
@@ -253,7 +263,8 @@ class Assets {
 
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
-  static const $AssetsVideosGen videos = $AssetsVideosGen();
+  static const $AssetsLocalesGen locales = $AssetsLocalesGen();
+  static const $AssetsLottieGen lottie = $AssetsLottieGen();
 }
 
 class AssetGenImage {

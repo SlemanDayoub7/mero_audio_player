@@ -3,34 +3,67 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
 
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/artist_list/artist_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/ringtone/ringtone_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/cs.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/add_to_playlist_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/ringtone/set_ringtone_page.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 import 'package:ringtone_set_plus/ringtone_set_plus.dart';
 
-void showAudioOptionsBottomSheet(BuildContext context, AudioFile audio) {
+void showAudioOptionsBottomSheet(
+  BuildContext context,
+  AudioFile audio,
+  PlaySource playSource, {
+  VoidCallback? onDelete,
+  String? playlistName,
+  String? artistName,
+}) {
   showModalBottomSheet(
     context: context,
+    backgroundColor: globalBackgroundColor,
     isScrollControlled: true,
     constraints: BoxConstraints(maxHeight: 300.h),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(15.r)),
     ),
-    builder: (context) => AudioOptionsSheet(audio: audio),
+    builder:
+        (context) => AudioOptionsSheet(
+          audio: audio,
+          playSource: playSource,
+          playlistName: playlistName,
+          artistName: artistName,
+          onDelete: onDelete,
+        ),
   );
 }
 
 class AudioOptionsSheet extends StatelessWidget {
+  final PlaySource playSource;
+  final String? playlistName;
+  final String? artistName;
   final AudioFile audio;
-
-  const AudioOptionsSheet({super.key, required this.audio});
+  final VoidCallback? onDelete;
+  const AudioOptionsSheet({
+    super.key,
+    required this.audio,
+    required this.playSource,
+    this.playlistName,
+    this.artistName,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +76,14 @@ class AudioOptionsSheet extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
       child: Column(
-        spacing: 10.h,
+        spacing: 20.h,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildOption(
             context,
             text: LocaleKeys.addToPlaylist.tr(),
-            icon: Assets.icons.musicAdd,
+            icon: Assets.icons.playlistAdd,
             onTap: () {
               Navigator.push(
                 context,
@@ -60,47 +93,96 @@ class AudioOptionsSheet extends StatelessWidget {
               );
             },
           ),
-          SizedBox(height: 10.h),
+
+          // SizedBox(height: 10.h),
+          // _buildOption(
+          //   context,
+          //   text: LocaleKeys.cutChapter.tr(),
+          //   icon: Assets.icons.cut,
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (_) => CreateAudiobookPage(audioFile: audio),
+          //       ),
+          //     );
+          //   },
+          // ),
           _buildOption(
             context,
-            text: LocaleKeys.cutChapter.tr(),
-            icon: Assets.icons.cut,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CreateAudiobookPage(audioFile: audio),
-                ),
-              );
+            text:
+                LocaleKeys.delete
+                    .tr(), // or LocaleKeys.delete.tr() if you have it localized
+            icon: Assets.icons.removeAll, // put your delete icon asset here
+            onTap: () async {
+              // Ask the user for confirmation first
+              if (playSource == PlaySource.playlist) {
+                await confirmAndExecute(
+                  context: context,
+                  confirmMessage:
+                      LocaleKeys.file_will_be_removed_from_playlist.tr(),
+                  action: () async {
+                    context.read<PlaylistBloc>().add(
+                      RemoveAudioFromPlaylist(playlistName!, audio),
+                    );
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  successMessage: LocaleKeys.file_removed_from_playlist.tr(),
+                  errorMessage: LocaleKeys.delete_error.tr(),
+                );
+              } else {
+                await confirmAndExecute(
+                  context: context,
+                  showSuccess: false,
+                  confirmMessage:
+                      LocaleKeys.delete_confirmation.tr(), // localize if needed
+                  errorMessage: LocaleKeys.delete_error.tr(),
+                  successMessage: LocaleKeys.delete_success.tr(),
+                  action: () async {
+                    await deleteAudioFileFromMediaStore(audio.uri ?? '');
+                    context.read<PlaylistBloc>().add(LoadPlaylists());
+                    onDelete?.call();
+                    context.read<ArtistListBloc>().add(FetchArtistList());
+                    context.read<AudioListBloc>().add(FetchAudioList());
+                    context.read<AlbumListBloc>().add(FetchAlbumList());
+                    Navigator.pop(context);
+                  },
+                );
+
+                // Close the bottom sheet after deletion
+              }
             },
           ),
-          SizedBox(height: 10.h),
+
           _buildOption(
             context,
             text: LocaleKeys.setRingtone.tr(),
             icon: Assets.icons.ringtone,
             onTap: () async {
-              await confirmAndExecute(
-                context: context,
-                confirmMessage: LocaleKeys.currentAudioWillBeRingtone.tr(),
-                errorMessage: '',
-                successMessage: LocaleKeys.fileSetAsRingtone.tr(),
-                action: () async {
-                  bool success = false;
-                  try {
-                    success = await RingtoneSet.setRingtoneFromFile(
-                      File(audio.data ?? ''),
-                    );
-                  } on PlatformException {
-                    success = false;
-                  }
-                },
+              bool result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => BlocProvider<SetRingToneBloc>(
+                        create: (context) => SetRingToneBloc(),
+                        child: SetRingtonePage(audioFile: audio),
+                      ),
+                ),
               );
-
+              if (result == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ringtone set successfully!')),
+                );
+              }
+              context.read<PlaylistBloc>().add(LoadPlaylists());
+              context.read<ArtistListBloc>().add(FetchArtistList());
+              context.read<AudioListBloc>().add(FetchAudioList());
+              context.read<AlbumListBloc>().add(FetchAlbumList());
               Navigator.pop(context);
             },
           ),
-          SizedBox(height: 10.h),
+
           _buildOption(
             context,
             text: LocaleKeys.setNotificationTone.tr(),
@@ -140,10 +222,10 @@ class AudioOptionsSheet extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Row(
-        spacing: 5.w,
+        spacing: 7.w,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          icon.svg(width: 30.w, height: 30.w, color: globalBackgroundColor),
+          icon.svg(width: 30.w, height: 30.w, color: Colors.white),
           Text(
             text,
             style: TextStyles.headlineMedium.copyWith(color: Colors.white),
@@ -153,4 +235,12 @@ class AudioOptionsSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+final mediaStore = MediaStore();
+
+Future<void> deleteAudioFileFromMediaStore(String path) async {
+  final deleted = await mediaStore.deleteFileUsingUri(uriString: path);
+  if (deleted) {
+  } else {}
 }

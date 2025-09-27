@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
@@ -20,7 +21,11 @@ Future<void> showCreatePlaylistDialog(
             LocaleKeys.playlistName.tr(),
             style: TextStyles.titleLarge.copyWith(color: Colors.black),
           ),
-          content: TextField(controller: nameController, maxLength: 40),
+          content: TextField(
+            controller: nameController,
+            maxLength: 40,
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'0'))],
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -59,17 +64,17 @@ Future<bool> showConfirmationDialog(
         context: context,
         builder: (BuildContext dialogContext) {
           return AlertDialog(
-            title: Text('تأكيد'),
+            title: Text(LocaleKeys.confirm.tr()),
             content: Text(message),
             actions: <Widget>[
               TextButton(
-                child: const Text('إلغاء'),
+                child: Text(LocaleKeys.cancel.tr()),
                 onPressed: () {
                   Navigator.of(dialogContext).pop(false);
                 },
               ),
               TextButton(
-                child: const Text('موافق'),
+                child: Text(LocaleKeys.ok.tr()),
                 onPressed: () {
                   Navigator.of(dialogContext).pop(true);
                 },
@@ -83,6 +88,7 @@ Future<bool> showConfirmationDialog(
 
 Future<void> confirmAndExecute({
   required BuildContext context,
+  bool showSuccess = true,
   required String confirmMessage,
   required Future<void> Function() action,
   required String successMessage,
@@ -93,9 +99,10 @@ Future<void> confirmAndExecute({
   if (confirmed) {
     try {
       await action();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(successMessage)));
+      if (showSuccess)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(successMessage)));
     } catch (e) {
       ScaffoldMessenger.of(
         context,

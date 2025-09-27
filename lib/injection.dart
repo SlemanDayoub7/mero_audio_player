@@ -14,10 +14,12 @@ import 'package:mero_audio_player/features/audio_player/domain/entities/playlist
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 import 'package:mero_audio_player/features/audio_player/domain/repositories/audiobook_repository.dart';
 import 'package:mero_audio_player/features/audio_player/domain/repositories/playlists_repository.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/artist_list/artist_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/recently_played/recently_played_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/recently_played/recently_played_event.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/ringtone/ringtone_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/features/audio_player/services/audio_handler.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -33,6 +35,7 @@ OrderType orderType = OrderType.ASC_OR_SMALLER;
 PlaybackMode? playbackMode = PlaybackMode.repeatAll;
 PlaySource? playSource = PlaySource.audioList;
 String currentPlayListName = '';
+
 List<AudioFile> _audios = [];
 int? _savedIndex;
 
@@ -49,6 +52,7 @@ class Injection {
       androidNotificationChannelId: 'com.mero_audio_player.channel.audio',
       androidNotificationChannelName: 'Audio Playback',
       androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
     );
 
     // Initialize Hive
@@ -76,7 +80,8 @@ class Injection {
     Box backgroundBox = Hive.box(backgroundBoxName);
     int? savedColorValue = backgroundBox.get(backgroundColorKey);
     String? savedImage = backgroundBox.get(backgroundImageKey);
-
+    String? savedLottie = backgroundBox.get(lottieKey);
+    if (savedLottie != null) globalLottiePath = savedLottie;
     if (savedColorValue != null) {
       globalBackgroundColor = Color(savedColorValue);
     } else {
@@ -84,6 +89,8 @@ class Injection {
     }
     if (savedImage != null && savedImage.isNotEmpty) {
       globalBackgroundImagePath = savedImage;
+    } else {
+      globalBackgroundImagePath = 'assets/images/mate.jpg';
     }
     // Repositories
     audioRepository = AudioRepositoryImpl();
@@ -113,6 +120,9 @@ class Injection {
             _audios =
                 playlists.lastWhere((e) => e.name == last.playListName!).audios;
             break;
+          case PlaySource.album:
+            _audios = await audioRepository.fetchSongsByAlbum(last.album);
+            break;
         }
 
         // find saved index
@@ -137,9 +147,7 @@ class Injection {
           await audioHandler.setPlaylist(_audios, autoRun: false, initIndex: 0);
         }
       }
-    } catch (e) {
-      print('no thing');
-    }
+    } catch (e) {}
   }
 
   /// Bloc providers for MultiBlocProvider
@@ -174,5 +182,11 @@ class Injection {
               ArtistListBloc(repository: audioRepository)
                 ..add(FetchArtistList()),
     ),
+    BlocProvider<AlbumListBloc>(
+      create:
+          (context) =>
+              AlbumListBloc(repository: audioRepository)..add(FetchAlbumList()),
+    ),
+    // BlocProvider<SetRingToneBloc>(create: (context) => SetRingToneBloc()),
   ];
 }

@@ -7,11 +7,7 @@ class AudioRepositoryImpl implements AudioRepository {
   final OnAudioQuery _audioQuery = OnAudioQuery();
 
   // Folders you want to exclude (no trailing slash, lower-case for consistency)
-  final List<String> _excludedFolders = [
-    '/whatsapp/media/whatsapp audio',
-    '/download',
-    '/music/ringtones',
-  ];
+  final List<String> _excludedFolders = [];
 
   // Helper to check if path belongs to excluded folder
   bool _isExcluded(String? path) {
@@ -62,18 +58,23 @@ class AudioRepositoryImpl implements AudioRepository {
 
   @override
   Future<List<AlbumModel>> fetchAlbums() async {
-    bool perm = await _audioQuery.permissionsStatus();
-    if (!perm) {
-      perm = await _audioQuery.permissionsRequest();
-      if (!perm) throw Exception('Permission denied');
-    }
-
     final albums = await _audioQuery.queryAlbums(
       sortType: AlbumSortType.ALBUM,
-      orderType: OrderType.ASC_OR_SMALLER,
+      orderType: orderType,
     );
 
-    return albums;
+    List<AlbumModel> validAlbums = [];
+
+    for (final album in albums) {
+      // اجلب كل أغاني الألبوم مع فلترة OPUS
+      final songs = await fetchSongsByAlbum(album.album);
+      if (songs.isNotEmpty) {
+        // فقط ألبومات فيها تراكات غير OPUS
+        validAlbums.add(album);
+      }
+    }
+
+    return validAlbums;
   }
 
   @override
@@ -115,7 +116,6 @@ class AudioRepositoryImpl implements AudioRepository {
       sortType: SongSortType.TITLE,
       orderType: OrderType.ASC_OR_SMALLER,
     );
-
     final filteredSongs =
         songs
             .where(

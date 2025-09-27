@@ -39,14 +39,14 @@ class _CreatePlaylistPageState extends State<CreatePlaylistPage> {
             icon: Icons.save,
             opacity: 0,
             onPressed: () async {
-              if (selectedAudios.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(LocaleKeys.selectAtLeastOneAudioFile.tr()),
-                  ),
-                );
-                return;
-              }
+              // if (selectedAudios.isEmpty) {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     SnackBar(
+              //       content: Text(LocaleKeys.selectAtLeastOneAudioFile.tr()),
+              //     ),
+              //   );
+              //   return;
+              // }
 
               await showCreatePlaylistDialog(context, selectedAudios);
             },

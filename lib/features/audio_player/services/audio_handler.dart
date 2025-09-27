@@ -87,14 +87,12 @@ class AudioPlayerHandler extends BaseAudioHandler
         sources.add(audioSource);
       } catch (e) {
         // Log or handle invalid audio gracefully
-        print('Failed to add audio id ${a.id}: $e');
         // Optionally, continue without adding this audio
         continue;
       }
     }
 
     if (items.isEmpty || sources.isEmpty) {
-      print('No valid audio files to play in the playlist.');
       return;
     }
 
@@ -106,7 +104,6 @@ class AudioPlayerHandler extends BaseAudioHandler
         initialIndex: initIndex,
       );
     } catch (e) {
-      print('Error setting audio source: $e');
       // Handle or notify user
       return;
     }
@@ -114,9 +111,7 @@ class AudioPlayerHandler extends BaseAudioHandler
     if (autoRun) {
       try {
         play();
-      } catch (e) {
-        print('Error starting playback: $e');
-      }
+      } catch (e) {}
     }
   }
 
@@ -134,10 +129,16 @@ class AudioPlayerHandler extends BaseAudioHandler
   Future<void> play() => _player.play();
 
   @override
-  Future<void> pause() => _player.pause();
+  Future<void> pause() async {
+    await _player.pause();
+    await super.stop(); // يغلق الخدمة ويزيل الإشعار
+  }
 
   @override
-  Future<void> stop() => _player.stop();
+  Future<void> stop() async {
+    await _player.stop();
+    await super.stop();
+  }
 
   @override
   Future<void> seek(Duration position) => _player.seek(position);
@@ -159,4 +160,11 @@ class AudioPlayerHandler extends BaseAudioHandler
             Duration(seconds: 0),
             index: _player.effectiveIndices!.length - 1,
           );
+  @override
+  Future<void> onTaskRemoved() async {
+    if (!_player.playing) {
+      await _player.stop();
+      await super.stop();
+    }
+  }
 }

@@ -15,6 +15,7 @@ import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/create_playlist_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
+import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 import 'package:mero_audio_player/injection.dart';
 
@@ -174,7 +175,11 @@ class CreatePlaylistIcon extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(Icons.playlist_add, size: 30.sp, color: Colors.white),
+            Assets.icons.playlistAdd.svg(
+              width: 30.sp,
+              height: 30.sp,
+              color: Colors.white,
+            ),
             Text(
               LocaleKeys.addPlaylist.tr(),
               style: TextStyles.titleMedium.copyWith(color: Colors.white),

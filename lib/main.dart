@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart' show Hive;
+import 'package:media_store_plus/media_store_plus.dart';
 
 import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/constants/languages.dart';
@@ -15,20 +17,38 @@ import 'package:mero_audio_player/main_screen.dart';
 import 'package:mero_audio_player/permission_request_page.dart';
 
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'injection.dart';
+
+final MediaStore mediaStore = MediaStore();
 
 bool ok = false;
 final OnAudioQuery audioQuery = OnAudioQuery();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ui.DartPluginRegistrant.ensureInitialized();
+  if (Platform.isAndroid) {
+    await MediaStore.ensureInitialized();
+  }
+
+  // اطلب الصلاحيات
+  final sdk = await mediaStore.getPlatformSDKInt();
+  List<Permission> permissions = [Permission.storage];
+  if (sdk >= 33) {
+    permissions.add(Permission.audio);
+  }
+  await permissions.request();
+
+  // لازم تحدد فولدر للتطبيق
+  MediaStore.appFolder = "MeroAudioPlayer";
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
 
-  // SystemChrome.setPreferredOrientations([
-  //   DeviceOrientation.portraitDown,
-  //   DeviceOrientation.portraitUp,
-  // ]);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp,
+  ]);
   // Initialize dependencies
   await EasyLocalization.ensureInitialized();
   ok = await audioQuery.permissionsStatus();
@@ -57,7 +77,30 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    // التطبيق خرج من الواجهة (swipe away أو الخلفية)
+    if (state == AppLifecycleState.paused) {
+      // تحقق إذا الأغنية مش شغالة
+      if (!Injection.audioHandler.player.playing) {
+        await Injection.audioHandler.stop(); // يوقف كل شيء ويزيل الإشعار
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -78,12 +121,7 @@ class _MyAppState extends State<MyApp> {
                   localizationsDelegates: context.localizationDelegates,
                   locale: locale,
                   theme: ThemeData(fontFamily: 'Changa'),
-
-                  //   supportedLocales: [Locale('ar')],
                   home: !ok ? PermissionRequestPage() : MainScreen(),
-                  // routes: {
-                  //   '/home': (context) => MainScreen(), // صفحتك الرئيسية بعد الموافقة
-                  // },
                 );
               },
             ),

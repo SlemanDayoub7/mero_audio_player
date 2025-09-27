@@ -2,11 +2,13 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_drawer.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
 import 'package:mero_audio_player/features/about_us_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/albums/albums_list_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/artists/artists_list_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/audios/audios_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/playlist_page.dart';
@@ -27,7 +29,12 @@ class _MainScreenState extends State<MainScreen>
   late TabController _tabController;
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [AudiosPage(), PlaylistPage(), ArtistListPage()];
+  final List<Widget> _pages = [
+    AudiosPage(),
+    PlaylistPage(),
+    ArtistListPage(),
+    AlbumsListPage(),
+  ];
 
   @override
   void initState() {
@@ -76,7 +83,7 @@ class _MainScreenState extends State<MainScreen>
                 context,
                 MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),
               ),
-          onHowAreWe:
+          onAboutUs:
               () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AboutUsPage()),
@@ -92,26 +99,62 @@ class _MainScreenState extends State<MainScreen>
           scrolledUnderElevation: 0,
           toolbarHeight: 0,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(60.h),
-            child: TabBar(
-              controller: _tabController,
-              indicatorPadding: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              dividerColor: Colors.transparent,
-              unselectedLabelColor: Colors.white70,
-
-              labelStyle: TextStyles.headlineSmall.copyWith(
-                fontFamily: FontFamily.changa,
-              ),
-              unselectedLabelStyle: TextStyles.headlineSmall.copyWith(
-                fontFamily: FontFamily.changa,
-              ),
-              tabs: [
-                Tab(text: LocaleKeys.audio.tr()),
-                Tab(text: LocaleKeys.playlists.tr()),
-                Tab(text: LocaleKeys.artists.tr()),
+            preferredSize: Size.fromHeight(85.h),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 25.h,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      context.emptySizedWidthMedium,
+                      Text(
+                        'Mero Audio Player',
+                        style: TextStyles.displayMedium.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                      Spacer(),
+                      Builder(
+                        builder: (context) {
+                          return InkWell(
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: Icon(
+                              color: Colors.white,
+                              Icons.settings,
+                              size: 25.sp,
+                            ),
+                          );
+                        },
+                      ),
+                      context.emptySizedWidthMedium,
+                    ],
+                  ),
+                ),
+                TabBar(
+                  controller: _tabController,
+                  indicatorPadding: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                  indicatorColor: Colors.white,
+                  labelColor: Colors.white,
+                  dividerColor: Colors.transparent,
+                  unselectedLabelColor: Colors.white70,
+                  labelPadding: EdgeInsets.zero,
+                  labelStyle: TextStyles.bodyLarge.copyWith(
+                    fontFamily: FontFamily.changa,
+                  ),
+                  unselectedLabelStyle: TextStyles.bodyLarge.copyWith(
+                    fontFamily: FontFamily.changa,
+                  ),
+                  tabs: [
+                    Tab(text: LocaleKeys.audio.tr()),
+                    Tab(text: LocaleKeys.playlists.tr()),
+                    Tab(text: LocaleKeys.artists.tr()),
+                    Tab(text: LocaleKeys.albums.tr()),
+                  ],
+                ),
               ],
             ),
           ),
@@ -121,7 +164,7 @@ class _MainScreenState extends State<MainScreen>
             AppGradientBackground(),
             //   AppBackgroundImage(),
             Padding(
-              padding: EdgeInsets.only(top: 100.h, bottom: 94.h),
+              padding: EdgeInsets.only(top: 120.h, bottom: 94.h),
               child: IndexedStack(index: _selectedIndex, children: _pages),
             ),
 

@@ -1,29 +1,36 @@
 import 'package:equatable/equatable.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 
-abstract class RecentlyPlayedState extends Equatable {
+class RingtoneState extends Equatable {
+  final bool loading;
+  final double duration;
+  final double start;
+  final double end;
+  final bool trimming;
+
+  const RingtoneState({
+    this.loading = true,
+    this.duration = 0,
+    this.start = 0,
+    this.end = 0,
+    this.trimming = false,
+  });
+
+  RingtoneState copyWith({
+    bool? loading,
+    double? duration,
+    double? start,
+    double? end,
+    bool? trimming,
+  }) {
+    return RingtoneState(
+      loading: loading ?? this.loading,
+      duration: duration ?? this.duration,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      trimming: trimming ?? this.trimming,
+    );
+  }
+
   @override
-  List<Object?> get props => [];
-}
-
-class RecentlyPlayedInitial extends RecentlyPlayedState {}
-
-class RecentlyPlayedLoading extends RecentlyPlayedState {}
-
-class RecentlyPlayedLoaded extends RecentlyPlayedState {
-  final RecentlyPlayedAudio? audio;
-  final List<AudioFile> audios;
-  RecentlyPlayedLoaded({this.audio, required this.audios});
-
-  @override
-  List<Object?> get props => [audio];
-}
-
-class RecentlyPlayedError extends RecentlyPlayedState {
-  final String message;
-  RecentlyPlayedError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [loading, duration, start, end, trimming];
 }

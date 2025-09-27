@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/playlist.dart';
@@ -36,12 +37,27 @@ class PlaylistWidget extends StatelessWidget {
           // ),
 
           // SizedBox(width: 10.w),
+          playlist.name == '0'
+              ? Assets.icons.favoriteList.svg(
+                height: 50.h,
+                width: 50.w,
+                color: Colors.white,
+              )
+              : Assets.icons.playlist.svg(
+                height: 50.h,
+                width: 50.w,
+                color: Colors.white,
+              ),
+          context.emptySizedWidthLow,
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  playlist.name,
+                  playlist.name == '0'
+                      ? LocaleKeys.favorite.tr()
+                      : playlist.name,
                   maxLines: 1,
                   style: TextStyles.titleLarge.copyWith(color: Colors.white),
                 ),
@@ -52,22 +68,23 @@ class PlaylistWidget extends StatelessWidget {
               ],
             ),
           ),
-          ControlIconWidget(
-            svgGenImage: Assets.icons.deletePlaylist,
-            size: 35.sp,
-            onPressed: () async {
-              await confirmAndExecute(
-                context: context,
-                confirmMessage: 'هل أنت متأكد من حذف قائمة التشغيل؟',
-                action:
-                    () async => context.read<PlaylistBloc>().add(
-                      DeletePlaylist(playlist.name),
-                    ),
-                successMessage: 'تم حذف الفائمة',
-                errorMessage: 'error',
-              );
-            },
-          ),
+          if (playlist.name != '0')
+            ControlIconWidget(
+              svgGenImage: Assets.icons.deletePlaylist,
+              size: 35.sp,
+              onPressed: () async {
+                await confirmAndExecute(
+                  context: context,
+                  confirmMessage: LocaleKeys.playlistWillBeDeleted.tr(),
+                  action:
+                      () async => context.read<PlaylistBloc>().add(
+                        DeletePlaylist(playlist.name),
+                      ),
+                  successMessage: LocaleKeys.playlistDeleted.tr(),
+                  errorMessage: LocaleKeys.delete_error.tr(),
+                );
+              },
+            ),
         ],
       ),
     );
