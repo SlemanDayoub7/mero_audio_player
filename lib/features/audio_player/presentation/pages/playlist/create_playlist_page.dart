@@ -75,46 +75,75 @@ class _CreatePlaylistPageState extends State<CreatePlaylistPage> {
                       return AppCircularProgressIndicator();
                     } else if (state is AudioListLoaded) {
                       final audios = state.audios;
-                      return ListView.builder(
-                        padding: EdgeInsets.only(),
-                        shrinkWrap: true,
-                        itemCount: audios.length,
-                        itemBuilder: (context, index) {
-                          final audio = audios[index];
-                          final isSelected = selectedAudios.contains(audio);
-                          return ListTile(
-                            title: Text(
-                              audio.title,
-                              style: TextStyles.titleLarge.copyWith(
-                                color: Colors.white,
+                      return Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              selectedAudios.length == audios.length
+                                  ? selectedAudios.clear()
+                                  : selectedAudios.addAll(audios);
+                              setState(() {});
+                            },
+                            child: Center(
+                              child: Text(
+                                selectedAudios.length == audios.length
+                                    ? LocaleKeys.deselect_all.tr()
+                                    : LocaleKeys.selectAll.tr(),
+                                style: TextStyles.titleLarge.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
-                              maxLines: 1,
                             ),
-                            subtitle: Text(
-                              audio.artistOrUnknown,
-                              style: TextStyles.titleMedium.copyWith(
-                                color: Colors.white,
-                              ),
-                              maxLines: 1,
-                            ),
-                            trailing:
-                                isSelected
-                                    ? Icon(Icons.check_box, color: Colors.white)
-                                    : Icon(
-                                      Icons.check_box_outline_blank,
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(),
+                              shrinkWrap: true,
+                              itemCount: audios.length,
+                              itemBuilder: (context, index) {
+                                final audio = audios[index];
+                                final isSelected = selectedAudios.contains(
+                                  audio,
+                                );
+                                return ListTile(
+                                  title: Text(
+                                    audio.title,
+                                    style: TextStyles.titleLarge.copyWith(
                                       color: Colors.white,
                                     ),
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  selectedAudios.remove(audio);
-                                } else {
-                                  selectedAudios.add(audio);
-                                }
-                              });
-                            },
-                          );
-                        },
+                                    maxLines: 1,
+                                  ),
+                                  subtitle: Text(
+                                    audio.artistOrUnknown,
+                                    style: TextStyles.titleMedium.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                  trailing:
+                                      isSelected
+                                          ? Icon(
+                                            Icons.check_box,
+                                            color: Colors.white,
+                                          )
+                                          : Icon(
+                                            Icons.check_box_outline_blank,
+                                            color: Colors.white,
+                                          ),
+                                  onTap: () {
+                                    setState(() {
+                                      if (isSelected) {
+                                        selectedAudios.remove(audio);
+                                      } else {
+                                        selectedAudios.add(audio);
+                                      }
+                                    });
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     } else if (state is AudioListError) {
                       return AppErrorText(errorMessage: state.message);

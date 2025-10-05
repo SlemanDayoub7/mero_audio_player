@@ -67,10 +67,15 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
                 context.emptySizedHeightHigh,
                 Padding(
                   padding: context.paddingLow,
-                  child: Text(
-                    maxLines: 2,
-                    widget.artist.artist,
-                    style: TextStyles.titleLarge.copyWith(color: Colors.white),
+                  child: Center(
+                    child: Text(
+                      maxLines: 2,
+                      widget.artist.artist,
+                      textAlign: TextAlign.center,
+                      style: TextStyles.titleLarge.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 SortOrderPlaybackWidget(showSortOrder: false),
@@ -96,7 +101,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
                             return AudioWidget(
                               audio: song,
                               audios: songs,
-                              playSource: PlaySource.artist,
+                              playSourceL: PlaySource.artist,
                               artist: song.artist,
                               selectionMode: selectionMode,
                               isSelected: selected.contains(song),

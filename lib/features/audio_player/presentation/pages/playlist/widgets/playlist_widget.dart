@@ -62,7 +62,7 @@ class PlaylistWidget extends StatelessWidget {
                   style: TextStyles.titleLarge.copyWith(color: Colors.white),
                 ),
                 Text(
-                  "${playlist.audios.length} ${LocaleKeys.audioPlural.tr()}",
+                  "${playlist.audios.length} ${LocaleKeys.song.tr()}",
                   style: TextStyles.titleMedium.copyWith(color: Colors.grey),
                 ),
               ],

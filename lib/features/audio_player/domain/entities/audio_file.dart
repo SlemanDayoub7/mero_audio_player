@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:hive/hive.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -39,14 +38,24 @@ class AudioFile extends HiveObject {
 
   @HiveField(10)
   final int? track;
+
   @HiveField(11)
-  Uint8List? albumArtBytes; // لتخزين الصورة الأصلية كـ bytes
+  Uint8List? albumArtBytes;
+
   @HiveField(12)
   final String? data;
+
   @HiveField(13)
   final String? genre;
 
+  @HiveField(14)
+  final String? albumId;
+
+  @HiveField(15)
+  String? artworkFilePath; // NEW: Path to cached artwork file
+
   AudioFile({
+    this.albumId,
     this.data,
     this.genre,
     required this.id,
@@ -61,26 +70,32 @@ class AudioFile extends HiveObject {
     this.dateAdded,
     this.track,
     this.albumArtBytes,
+    this.artworkFilePath, // NEW
   });
 
   /// تحويل من SongModel
-  factory AudioFile.fromSongModel(SongModel song, {Uint8List? albumArt}) =>
-      AudioFile(
-        id: song.id,
-        data: song.data,
-        dateAdded: song.dateAdded,
-        title: song.title,
-        artist: song.artist,
-        album: song.album,
-        uri: song.uri,
-        duration: song.duration,
-        size: song.size,
-        genre: song.genre,
-        displayName: song.displayName,
-        composer: song.composer,
-        track: song.track,
-        albumArtBytes: albumArt,
-      );
+  factory AudioFile.fromSongModel(
+    SongModel song, {
+    Uint8List? albumArt,
+    String? artworkPath,
+  }) => AudioFile(
+    albumId: song.albumId.toString(),
+    id: song.id,
+    data: song.data,
+    dateAdded: song.dateAdded,
+    title: song.title,
+    artist: song.artist,
+    album: song.album,
+    uri: song.uri,
+    duration: song.duration,
+    size: song.size,
+    genre: song.genre,
+    displayName: song.displayName,
+    composer: song.composer,
+    track: song.track,
+    albumArtBytes: albumArt,
+    artworkFilePath: artworkPath, // NEW
+  );
 
   /// ⏱️ صيغة الوقت mm:ss
   String get formattedDuration {
@@ -117,9 +132,11 @@ extension AudioFileMapper on AudioFile {
       'composer': composer,
       'genre': genre,
       'dateAdded': dateAdded,
+      'albumId': albumId,
       'track': track,
       'albumArtBytes': albumArtBytes,
       'data': data,
+      'artworkFilePath': artworkFilePath, // NEW
     };
   }
 
@@ -132,6 +149,7 @@ extension AudioFileMapper on AudioFile {
       uri: map['uri'],
       duration: map['duration'],
       size: map['size'],
+      albumId: map['albumId'],
       genre: map['genre'],
       displayName: map['displayName'],
       composer: map['composer'],
@@ -139,6 +157,7 @@ extension AudioFileMapper on AudioFile {
       track: map['track'],
       albumArtBytes: map['albumArtBytes'],
       data: map['data'],
+      artworkFilePath: map['artworkFilePath'], // NEW
     );
   }
 }

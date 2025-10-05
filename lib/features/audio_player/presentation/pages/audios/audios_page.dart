@@ -9,8 +9,10 @@ import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
+import 'package:mero_audio_player/features/audio_player/data/repositories/audio_repository_impl.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
@@ -68,130 +70,141 @@ class _AudiosPageState extends State<AudiosPage> {
         }
         return true;
       },
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(right: 8.w, left: 8.w),
-            child: SearchField(
-              controller: widget.controller,
-              hintText: LocaleKeys.searchAudioFile.tr(),
-              onChanged: (query) {
-                context.read<AudioListBloc>().add(SearchAudio(query));
-              },
+      child: RefreshIndicator(
+        backgroundColor: globalBackgroundColor,
+        color: Colors.white,
+        onRefresh: () async {
+          context.read<AudioListBloc>().add(FetchAudioList());
+        },
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 8.w, left: 8.w),
+              child: SearchField(
+                controller: widget.controller,
+                hintText: LocaleKeys.searchAudioFile.tr(),
+                onChanged: (query) {
+                  context.read<AudioListBloc>().add(SearchAudio(query));
+                },
+              ),
             ),
-          ),
 
-          SortOrderPlaybackWidget(),
+            SortOrderPlaybackWidget(),
 
-          Expanded(
-            child: BlocBuilder<AudioListBloc, AudioListState>(
-              builder: (context, state) {
-                if (state is AudioListLoading) {
-                  return AppCircularProgressIndicator();
-                } else if (state is AudioListLoaded) {
-                  final audios = state.audios;
-                  if (audios.isEmpty) {
-                    return Center(
-                      child: Text(
-                        LocaleKeys.noResults.tr(),
-                        style: TextStyles.displayMedium.copyWith(
-                          color: Colors.white,
+            Expanded(
+              child: BlocBuilder<AudioListBloc, AudioListState>(
+                builder: (context, state) {
+                  if (state is AudioListLoading) {
+                    return AppCircularProgressIndicator();
+                  } else if (state is AudioListLoaded) {
+                    final audios = state.audios;
+                    if (audios.isEmpty) {
+                      return Center(
+                        child: Text(
+                          LocaleKeys.noResults.tr(),
+                          style: TextStyles.displayMedium.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return Stack(
-                    children: [
-                      ListView.builder(
-                        padding:
-                            selectionMode
-                                ? EdgeInsets.only(
-                                  left: 8.w,
-                                  right: 8.w,
-                                  top: 8.w,
-                                  bottom: 90.h,
-                                )
-                                : context.paddingLow,
+                      );
+                    }
+                    return Stack(
+                      children: [
+                        ListView.builder(
+                          padding:
+                              selectionMode
+                                  ? EdgeInsets.only(
+                                    left: 8.w,
+                                    right: 8.w,
+                                    top: 8.w,
+                                    bottom: 90.h,
+                                  )
+                                  : context.paddingLow,
 
-                        itemCount: audios.length,
-                        itemBuilder: (context, index) {
-                          final audio = audios[index];
-                          return AudioWidget(
-                            audio: audio,
-                            audios: audios,
-                            selectionMode: selectionMode,
-                            playSource: PlaySource.audioList,
-                            isSelected: selected.contains(audio),
-                            onTap:
-                                selectionMode
-                                    ? () => toggleSelection(audio)
-                                    : null, // تشغيل عادي لو مش في وضع التحديد
-                            onLongPress: () {
-                              setState(() {
-                                selectionMode = true;
-                                toggleSelection(audio);
-                              });
-                            },
-                          );
-                        },
-                      ),
-
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder:
-                      //             (context) => AudioTrimPro(
-                      //               filePath: audios[0].data ?? '',
-                      //             ),
-                      //       ),
-                      //     );
-                      //   },
-                      //   child: Text('data'),
-                      // ),
-                      // if (showScrollToSelectedButton &&
-                      //     audioPlayerState.currentIndex != null)
-                      //   Positioned(
-                      //     bottom: 16,
-                      //     right: 16,
-                      //     child: FloatingActionButton(
-                      //       backgroundColor: Colors.black.withOpacity(0.7),
-                      //       onPressed: _scrollToSelected,
-                      //       child: Icon(
-                      //         color: Colors.white,
-                      //         scrollArrowUp
-                      //             ? Icons.arrow_upward
-                      //             : Icons.arrow_downward,
-                      //       ),
-                      //       mini: true,
-                      //     ),
-                      //   ),
-                      if (selectionMode) ...[
-                        SelectionModeRowWidget(
-                          playSource: PlaySource.audioList,
-                          bottomMargin: 0,
-                          onSelectAll: () {
-                            selected.length == audios.length
-                                ? selected.clear()
-                                : selected.addAll(audios);
-                            setState(() {});
+                          itemCount: audios.length,
+                          itemBuilder: (context, index) {
+                            final audio = audios[index];
+                            return AudioWidget(
+                              audio: audio,
+                              audios: audios,
+                              image:
+                                  index <= 5
+                                      ? 'assets/images/${index + 1}.jpg'
+                                      : null,
+                              selectionMode: selectionMode,
+                              playSourceL: PlaySource.audioList,
+                              isSelected: selected.contains(audio),
+                              onTap:
+                                  selectionMode
+                                      ? () => toggleSelection(audio)
+                                      : null, // تشغيل عادي لو مش في وضع التحديد
+                              onLongPress: () {
+                                setState(() {
+                                  selectionMode = true;
+                                  toggleSelection(audio);
+                                });
+                              },
+                            );
                           },
-                          selected: selected,
-                          audiosLength: audios.length,
                         ),
+
+                        // ElevatedButton(
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder:
+                        //             (context) => AudioTrimPro(
+                        //               filePath: audios[0].data ?? '',
+                        //             ),
+                        //       ),
+                        //     );
+                        //   },
+                        //   child: Text('data'),
+                        // ),
+                        // if (showScrollToSelectedButton &&
+                        //     audioPlayerState.currentIndex != null)
+                        //   Positioned(
+                        //     bottom: 16,
+                        //     right: 16,
+                        //     child: FloatingActionButton(
+                        //       backgroundColor: Colors.black.withOpacity(0.7),
+                        //       onPressed: _scrollToSelected,
+                        //       child: Icon(
+                        //         color: Colors.white,
+                        //         scrollArrowUp
+                        //             ? Icons.arrow_upward
+                        //             : Icons.arrow_downward,
+                        //       ),
+                        //       mini: true,
+                        //     ),
+                        //   ),
+                        if (selectionMode) ...[
+                          SelectionModeRowWidget(
+                            playSource: PlaySource.audioList,
+                            bottomMargin: 0,
+                            onSelectAll: () {
+                              selected.length == audios.length
+                                  ? selected.clear()
+                                  : selected.addAll(audios);
+                              setState(() {});
+                            },
+                            selected: selected,
+                            audiosLength: audios.length,
+                          ),
+                        ],
                       ],
-                    ],
-                  );
-                } else if (state is AudioListError) {
-                  return AppErrorText(errorMessage: state.message);
-                } else {
-                  return const SizedBox();
-                }
-              },
+                    );
+                  } else if (state is AudioListError) {
+                    return AppErrorText(errorMessage: state.message);
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

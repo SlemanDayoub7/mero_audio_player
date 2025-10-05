@@ -22,8 +22,9 @@ class WaitingListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      spacing: 5.sp,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 5.h,
       children: [
         ControlIconWidget(
           opacity: 1,

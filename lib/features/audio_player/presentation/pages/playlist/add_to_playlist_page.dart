@@ -27,131 +27,129 @@ class AddToPlaylistPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController controller = TextEditingController();
     return GenericScaffold(
-      appBar: GenericAppBar(title: "اختر قائمة التشغيل"),
+      appBar: GenericAppBar(title: LocaleKeys.choose_playlist.tr()),
       body: Stack(
         children: [
           AppGradientBackground(),
-          Padding(
-            padding: EdgeInsets.only(top: 90.h),
-            child: Column(
-              children: [
-                Row(
-                  spacing: 5.w,
-                  children: [
-                    context.emptySizedWidthLow,
-                    Expanded(
-                      child: SearchField(
-                        controller: controller,
-                        hintText: LocaleKeys.searchPlaylist.tr(),
-                        onChanged: (query) {
-                          context.read<PlaylistBloc>().add(
-                            SearchPlaylist(query),
+          Column(
+            children: [
+              SizedBox(height: 90.h),
+              Row(
+                children: [
+                  context.emptySizedWidthLow,
+                  Expanded(
+                    flex: 2,
+                    child: SearchField(
+                      controller: controller,
+                      hintText: LocaleKeys.searchPlaylist.tr(),
+                      onChanged: (query) {
+                        context.read<PlaylistBloc>().add(SearchPlaylist(query));
+                      },
+                    ),
+                  ),
+                  Expanded(child: CreatePlaylistIcon()),
+                  context.emptySizedWidthLow,
+                ],
+              ),
+              Expanded(
+                child: BlocBuilder<PlaylistBloc, PlaylistState>(
+                  builder: (context, state) {
+                    if (state is PlaylistLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is PlaylistLoaded) {
+                      var playlists = state.playlists;
+                      if (playlists.isEmpty) {
+                        return AppNoDataText();
+                      }
+                      ;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        padding: context.paddingLow,
+
+                        itemCount: playlists.length,
+                        itemBuilder: (context, index) {
+                          final playlist = playlists[index];
+
+                          return InkWell(
+                            onTap: () async {
+                              await confirmAndExecute(
+                                context: context,
+                                confirmMessage:
+                                    LocaleKeys.filesWillBeAddedToPlaylist.tr(),
+                                errorMessage: '',
+                                successMessage:
+                                    LocaleKeys.filesAddedToPlaylist.tr() +
+                                    ':' +
+                                    (playlist.name == '0'
+                                        ? LocaleKeys.favorite.tr()
+                                        : playlist.name),
+                                action: () async {
+                                  final playlistBloc =
+                                      context.read<PlaylistBloc>();
+                                  for (var audio in audios) {
+                                    playlistBloc.add(
+                                      AddAudioToPlaylist(playlist.name, audio),
+                                    );
+                                  }
+                                },
+                              );
+                              Navigator.pop(context);
+                              // Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10.w),
+                              // decoration: BoxDecoration(
+                              //   color:
+                              //       playlist.isAudiobook
+                              //           ? Colors.blueGrey[900]
+                              //           : Colors.grey[850],
+                              //   borderRadius: BorderRadius.circular(10.r),
+                              //),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.queue_music,
+                                    color: Colors.white,
+                                    size: 30.sp,
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          (playlist.name == '0'
+                                              ? LocaleKeys.favorite.tr()
+                                              : playlist.name),
+                                          maxLines: 1,
+                                          style: TextStyles.titleLarge.copyWith(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          "${playlist.audios.length} ${LocaleKeys.song.tr()}",
+                                          style: TextStyles.titleMedium
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         },
-                      ),
-                    ),
-                    CreatePlaylistIcon(),
-                    context.emptySizedWidthLow,
-                  ],
+                      );
+                    } else if (state is PlaylistError) {
+                      return AppErrorText(errorMessage: state.message);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
-                Expanded(
-                  child: BlocBuilder<PlaylistBloc, PlaylistState>(
-                    builder: (context, state) {
-                      if (state is PlaylistLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state is PlaylistLoaded) {
-                        var playlists = state.playlists;
-                        if (playlists.isEmpty) {
-                          return AppNoDataText();
-                        }
-                        ;
-                        return ListView.separated(
-                          padding: context.paddingLow,
-                          separatorBuilder:
-                              (context, index) => context.emptySizedHeightLow,
-                          itemCount: playlists.length,
-                          itemBuilder: (context, index) {
-                            final playlist = playlists[index];
-
-                            return InkWell(
-                              onTap: () async {
-                                await confirmAndExecute(
-                                  context: context,
-                                  confirmMessage: LocaleKeys.addToPlaylist.tr(),
-                                  errorMessage: '',
-                                  successMessage:
-                                      LocaleKeys.audioAddedToList.tr() +
-                                      playlist.name,
-                                  action: () async {
-                                    final playlistBloc =
-                                        context.read<PlaylistBloc>();
-                                    for (var audio in audios) {
-                                      playlistBloc.add(
-                                        AddAudioToPlaylist(
-                                          playlist.name,
-                                          audio,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                );
-                                Navigator.pop(context);
-                                // Navigator.pop(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(10.w),
-                                // decoration: BoxDecoration(
-                                //   color:
-                                //       playlist.isAudiobook
-                                //           ? Colors.blueGrey[900]
-                                //           : Colors.grey[850],
-                                //   borderRadius: BorderRadius.circular(10.r),
-                                //),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      playlist.isAudiobook
-                                          ? Icons.book
-                                          : Icons.queue_music,
-                                      color: Colors.white,
-                                      size: 30.sp,
-                                    ),
-                                    SizedBox(width: 10.w),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            playlist.name,
-                                            maxLines: 1,
-                                            style: TextStyles.titleLarge
-                                                .copyWith(color: Colors.white),
-                                          ),
-                                          Text(
-                                            "${playlist.audios.length} ${LocaleKeys.song}",
-                                            style: TextStyles.titleMedium
-                                                .copyWith(color: Colors.white),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      } else if (state is PlaylistError) {
-                        return AppErrorText(errorMessage: state.message);
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -180,9 +178,12 @@ class CreatePlaylistIcon extends StatelessWidget {
               height: 30.sp,
               color: Colors.white,
             ),
-            Text(
-              LocaleKeys.addPlaylist.tr(),
-              style: TextStyles.titleMedium.copyWith(color: Colors.white),
+            Expanded(
+              child: Text(
+                LocaleKeys.addPlaylist.tr(),
+                maxLines: 2,
+                style: TextStyles.titleSmall.copyWith(color: Colors.white),
+              ),
             ),
           ],
         ),

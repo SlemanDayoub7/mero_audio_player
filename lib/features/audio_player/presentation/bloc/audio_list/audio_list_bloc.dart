@@ -26,6 +26,15 @@ class AudioListBloc extends Bloc<AudioListEvent, AudioListState> {
         emit(AudioListError(message: e.toString()));
       }
     });
+    on<LoadAudioList>((event, emit) async {
+      emit(AudioListLoading());
+      try {
+        _fullList = event.audios;
+        emit(AudioListLoaded(audios: _fullList));
+      } catch (e) {
+        emit(AudioListError(message: e.toString()));
+      }
+    });
 
     on<SortAudioList>((event, emit) async {
       if (state is AudioListLoaded) {

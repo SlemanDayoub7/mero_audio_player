@@ -21,11 +21,25 @@ class SpeedDropdown extends StatelessWidget {
     return DropdownButton<double>(
       underline: SizedBox.shrink(),
       dropdownColor: globalBackgroundColor,
-      icon: Assets.icons.speed.svg(
-        color: Colors.white,
-        width: 30.sp,
-        height: 30.sp,
-      ),
+      icon: SizedBox.shrink(),
+      padding: EdgeInsets.zero,
+      selectedItemBuilder: (context) {
+        return speeds.map((speed) {
+          return Container(
+            padding: EdgeInsets.all(4.r),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(width: 0.5.r, color: Colors.white),
+            ),
+            child: Center(
+              child: Text(
+                '${speed}x',
+                style: TextStyles.titleSmall.copyWith(color: Colors.white),
+              ),
+            ),
+          );
+        }).toList();
+      },
       value: currentSpeed,
       items:
           speeds.map((speed) {
@@ -33,7 +47,7 @@ class SpeedDropdown extends StatelessWidget {
               value: speed,
               child: Text(
                 '${speed}x',
-                style: TextStyles.titleMedium.copyWith(color: Colors.white),
+                style: TextStyles.titleSmall.copyWith(color: Colors.white),
               ),
             );
           }).toList(),

@@ -61,7 +61,7 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
     bool success = false;
     if (_isLoading || _isTrimming) return;
     if (start >= end) {
-      _showSnackBar('Start must be before end');
+      _showSnackBar(LocaleKeys.startMustBeBeforeEnd.tr());
       return;
     }
 
@@ -78,7 +78,7 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
       );
 
       if (trimmedPath == null) {
-        _showSnackBar('Failed to trim audio');
+        _showSnackBar(LocaleKeys.errorOccurred.tr());
         return;
       }
 
@@ -86,14 +86,14 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
       if (success) {
         Navigator.pop(context, true); // العودة للصفحة السابقة فقط عند النجاح
       } else {
-        _showSnackBar('Failed to set ringtone');
+        _showSnackBar(LocaleKeys.errorOccurred.tr());
         // تبقى الصفحة مفتوحة
       }
 
       final tempFile = File(trimmedPath);
       if (await tempFile.exists()) await tempFile.delete();
     } catch (e) {
-      _showSnackBar('Error: $e');
+      _showSnackBar(LocaleKeys.errorOccurred.tr());
     } finally {
       setState(() {
         _isLoading = false;
@@ -119,7 +119,7 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
           _isLoading || _isTrimming
               ? Center(
                 child: Text(
-                  'يتم تعيين نغمة الرنين انتظر من فضلك...',
+                  LocaleKeys.setting_ringtone.tr(),
                   style: TextStyles.headlineLarge.copyWith(color: Colors.white),
                 ),
               )

@@ -95,6 +95,7 @@ class SetRingToneBloc extends Bloc<SetRingToneEvent, SetRingToneState> {
   @override
   Future<void> close() {
     _positionSub?.cancel();
+
     player.dispose();
     return super.close();
   }

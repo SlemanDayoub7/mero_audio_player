@@ -58,12 +58,7 @@ class _ChangeBackgroundPageState extends State<ChangeBackgroundPage> {
     Color(0xFF660099),
   ];
 
-  List<String> bgImages = [
-    'assets/images/bg_one.jpg',
-    'assets/images/bg_two.jpg',
-
-    'assets/images/mate.jpg',
-  ];
+  List<String> bgImages = ['assets/images/mate.png'];
 
   final List<String> lottieAssets = [
     'assets/lottie/Decent Soundwaves.json',
@@ -94,19 +89,17 @@ class _ChangeBackgroundPageState extends State<ChangeBackgroundPage> {
     if (savedImage != null && savedImage.isNotEmpty) {
       selectedImage = savedImage;
       if (!savedImage.contains('assets')) bgImages.add(savedImage);
+    } else {
+      selectedImage = globalBackgroundImagePath;
     }
   }
 
   void saveSelection() async {
     if (selectedColor != null)
       await backgroundBox.put(backgroundColorKey, selectedColor!.value);
-    else
-      await backgroundBox.delete(backgroundColorKey);
 
     if (selectedImage != null)
       await backgroundBox.put(backgroundImageKey, selectedImage);
-    else
-      await backgroundBox.delete(backgroundImageKey);
 
     await backgroundBox.put(lottieKey, selectedLottie);
 
@@ -282,6 +275,7 @@ class _ChangeBackgroundPageState extends State<ChangeBackgroundPage> {
 
   Widget _buildImageGrid() => GridView.builder(
     shrinkWrap: true,
+    padding: EdgeInsets.zero,
     physics: NeverScrollableScrollPhysics(),
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 3,

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
 Future<void> showCreatePlaylistDialog(
@@ -17,12 +18,16 @@ Future<void> showCreatePlaylistDialog(
     context: context,
     builder:
         (context) => AlertDialog(
+          backgroundColor: globalBackgroundColor,
           title: Text(
             LocaleKeys.playlistName.tr(),
-            style: TextStyles.titleLarge.copyWith(color: Colors.black),
+            style: TextStyles.titleLarge.copyWith(color: Colors.white),
           ),
+
           content: TextField(
+            cursorColor: Colors.white,
             controller: nameController,
+            style: TextStyles.titleMedium.copyWith(color: Colors.white),
             maxLength: 40,
             inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'0'))],
           ),
@@ -31,7 +36,7 @@ Future<void> showCreatePlaylistDialog(
               onPressed: () => Navigator.pop(context),
               child: Text(
                 LocaleKeys.cancel.tr(),
-                style: TextStyles.titleLarge.copyWith(color: Colors.black),
+                style: TextStyles.titleLarge.copyWith(color: Colors.white),
               ),
             ),
             TextButton(
@@ -42,13 +47,22 @@ Future<void> showCreatePlaylistDialog(
                   for (var audio in selectedAudios) {
                     playlistBloc.add(AddAudioToPlaylist(name, audio));
                   }
+                  playlistBloc.add(LoadPlaylists());
+
                   Navigator.pop(context); // Close dialog
-                  //    Navigator.pop(context); // Go back to previous page
+                  Navigator.pop(context); // Go back to previous page
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        LocaleKeys.playlistCreated.tr() + ': ' + name,
+                      ),
+                    ),
+                  );
                 }
               },
               child: Text(
                 LocaleKeys.create.tr(),
-                style: TextStyles.titleLarge.copyWith(color: Colors.black),
+                style: TextStyles.titleLarge.copyWith(color: Colors.white),
               ),
             ),
           ],
@@ -62,19 +76,33 @@ Future<bool> showConfirmationDialog(
 ) async {
   return await showDialog<bool>(
         context: context,
+
         builder: (BuildContext dialogContext) {
           return AlertDialog(
-            title: Text(LocaleKeys.confirm.tr()),
-            content: Text(message),
+            backgroundColor: globalBackgroundColor,
+            title: Text(
+              LocaleKeys.confirm.tr(),
+              style: TextStyles.titleLarge.copyWith(color: Colors.white),
+            ),
+            content: Text(
+              message,
+              style: TextStyles.titleLarge.copyWith(color: Colors.white),
+            ),
             actions: <Widget>[
               TextButton(
-                child: Text(LocaleKeys.cancel.tr()),
+                child: Text(
+                  LocaleKeys.cancel.tr(),
+                  style: TextStyles.titleLarge.copyWith(color: Colors.white),
+                ),
                 onPressed: () {
                   Navigator.of(dialogContext).pop(false);
                 },
               ),
               TextButton(
-                child: Text(LocaleKeys.ok.tr()),
+                child: Text(
+                  LocaleKeys.ok.tr(),
+                  style: TextStyles.titleLarge.copyWith(color: Colors.white),
+                ),
                 onPressed: () {
                   Navigator.of(dialogContext).pop(true);
                 },

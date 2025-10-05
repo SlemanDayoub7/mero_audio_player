@@ -134,20 +134,29 @@ class _MainScreenState extends State<MainScreen>
                   ),
                 ),
                 TabBar(
+                  isScrollable: true,
                   controller: _tabController,
                   indicatorPadding: EdgeInsets.zero,
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.only(
+                    left: 15.w,
+                    right: 15.w,
+                    bottom: 5.h,
+                  ),
                   indicatorColor: Colors.white,
                   labelColor: Colors.white,
                   dividerColor: Colors.transparent,
+                  indicatorWeight: 1.sp,
+
                   unselectedLabelColor: Colors.white70,
-                  labelPadding: EdgeInsets.zero,
-                  labelStyle: TextStyles.bodyLarge.copyWith(
+                  tabAlignment: TabAlignment.start,
+                  labelPadding: EdgeInsetsDirectional.only(end: 35.w),
+                  labelStyle: TextStyles.titleLarge.copyWith(
                     fontFamily: FontFamily.changa,
                   ),
-                  unselectedLabelStyle: TextStyles.bodyLarge.copyWith(
+                  unselectedLabelStyle: TextStyles.titleMedium.copyWith(
                     fontFamily: FontFamily.changa,
                   ),
+
                   tabs: [
                     Tab(text: LocaleKeys.audio.tr()),
                     Tab(text: LocaleKeys.playlists.tr()),
@@ -164,7 +173,7 @@ class _MainScreenState extends State<MainScreen>
             AppGradientBackground(),
             //   AppBackgroundImage(),
             Padding(
-              padding: EdgeInsets.only(top: 120.h, bottom: 94.h),
+              padding: EdgeInsets.only(top: 122.h, bottom: 94.h),
               child: IndexedStack(index: _selectedIndex, children: _pages),
             ),
 

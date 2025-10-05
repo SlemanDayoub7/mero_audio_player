@@ -6,6 +6,7 @@ import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.d
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
 import 'package:mero_audio_player/core/widgets/app_no_data_text.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/albums/album_detail_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/albums/widgets/album_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/search_field.dart';
@@ -24,68 +25,75 @@ class _AlbumsListPageState extends State<AlbumsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(right: 8.w, left: 8.w),
-          child: SearchField(
-            controller: controller,
-            hintText: LocaleKeys.searchAlbum.tr(),
-            onChanged: (query) {
-              context.read<AlbumListBloc>().add(SearchAlbum(query: query));
-            },
+    return RefreshIndicator(
+      backgroundColor: globalBackgroundColor,
+      color: Colors.white,
+      onRefresh: () async {
+        context.read<AlbumListBloc>().add(FetchAlbumList());
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: 8.w, left: 8.w),
+            child: SearchField(
+              controller: controller,
+              hintText: LocaleKeys.searchAlbum.tr(),
+              onChanged: (query) {
+                context.read<AlbumListBloc>().add(SearchAlbum(query: query));
+              },
+            ),
           ),
-        ),
-        Expanded(
-          child: BlocBuilder<AlbumListBloc, AlbumListState>(
-            builder: (context, state) {
-              if (state is AlbumListLoading) {
-                return AppCircularProgressIndicator();
-              } else if (state is AlbumListLoaded) {
-                if (state.Albums.isEmpty) {
-                  return AppNoDataText();
-                }
+          Expanded(
+            child: BlocBuilder<AlbumListBloc, AlbumListState>(
+              builder: (context, state) {
+                if (state is AlbumListLoading) {
+                  return AppCircularProgressIndicator();
+                } else if (state is AlbumListLoaded) {
+                  if (state.Albums.isEmpty) {
+                    return AppNoDataText();
+                  }
 
-                final albums = state.Albums;
+                  final albums = state.Albums;
 
-                return ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: albums.length,
-                  itemBuilder: (context, index) {
-                    final album = albums[index];
+                  return ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: albums.length,
+                    itemBuilder: (context, index) {
+                      final album = albums[index];
 
-                    return InkWell(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => BlocProvider<AlbumListBloc>(
-                                  create:
-                                      (context) => AlbumListBloc(
-                                        repository: Injection.audioRepository,
-                                      )..add(
-                                        FetchSongsByAlbum(
-                                          AlbumName: album.album,
+                      return InkWell(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => BlocProvider<AlbumListBloc>(
+                                    create:
+                                        (context) => AlbumListBloc(
+                                          repository: Injection.audioRepository,
+                                        )..add(
+                                          FetchSongsByAlbum(
+                                            AlbumName: album.album,
+                                          ),
                                         ),
-                                      ),
-                                  child: AlbumDetailPage(album: album),
-                                ),
-                          ),
-                        );
-                      },
-                      child: AlbumWidget(album: album),
-                    );
-                  },
-                );
-              } else if (state is AlbumListError) {
-                return AppErrorText(errorMessage: state.message);
-              }
-              return const SizedBox.shrink();
-            },
+                                    child: AlbumDetailPage(album: album),
+                                  ),
+                            ),
+                          );
+                        },
+                        child: AlbumWidget(album: album),
+                      );
+                    },
+                  );
+                } else if (state is AlbumListError) {
+                  return AppErrorText(errorMessage: state.message);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,125 +1,57 @@
-// import 'package:animated_text_kit/animated_text_kit.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio/audio_cubit.dart';
-// import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio_player/audio_player_cubit.dart';
-// import 'package:mero_audio_player/features/audio_player/presentation/cubit/audio/audio_state.dart';
-// import 'package:mero_audio_player/main_screen.dart';
+import 'dart:async';
 
-// class SplashScreen extends StatefulWidget {
-//   const SplashScreen({super.key});
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mero_audio_player/core/themes/text_styles.dart';
+import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
+import 'package:mero_audio_player/gen/assets.gen.dart';
+import 'package:mero_audio_player/injection.dart';
+import 'package:mero_audio_player/main_screen.dart';
 
-//   @override
-//   State<SplashScreen> createState() => _SplashScreenState();
-// }
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
-// class _SplashScreenState extends State<SplashScreen>
-//     with SingleTickerProviderStateMixin {
-//   late final AnimationController _controller;
-//   late final Animation<double> _scaleAnimation;
-//   late final Animation<double> _opacityAnimation;
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
 
-//   @override
-//   void initState() {
-//     super.initState();
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    init(); // استدعاء الدالة هنا
+  }
 
-//     // إعداد الأنميشن للصورة
-//     _controller = AnimationController(
-//       vsync: this,
-//       duration: const Duration(seconds: 2),
-//     );
+  Future<void> init() async {
+    await Injection.init();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => MainScreen()),
+    );
+  }
 
-//     _scaleAnimation = Tween<double>(
-//       begin: 0.5,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-//     _opacityAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-
-//     _controller.forward();
-
-//     _fetchAudiosAndNavigate();
-//   }
-
-//   Future<void> _fetchAudiosAndNavigate() async {
-//     final audioCubit = context.read<AudioCubit>();
-//     audioCubit.fetchAudios();
-
-//     final audioState = await audioCubit.stream.firstWhere(
-//       (state) => state is AudioLoaded || state is AudioError,
-//     );
-
-//     if (audioState is AudioLoaded) {
-//       context.read<AudioPlayerCubit>().loadPlaylist(
-//         audioState.audios,
-//         autoRun: false,
-//       );
-//     }
-
-//     await Future.delayed(const Duration(seconds: 5));
-
-//     if (mounted) {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => const MainScreen()),
-//       );
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Container(
-//         color: Colors.white,
-//         alignment: Alignment.center,
-//         padding: EdgeInsets.symmetric(horizontal: 30.w),
-//         child: AnimatedBuilder(
-//           animation: _controller,
-//           builder: (context, child) {
-//             return Opacity(
-//               opacity: _opacityAnimation.value,
-//               child: Transform.scale(
-//                 scale: _scaleAnimation.value,
-//                 child: child,
-//               ),
-//             );
-//           },
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Image.asset(
-//                 "assets/images/mero.jpg",
-//                 width: 200.w,
-//                 height: 200.w,
-//               ),
-//               SizedBox(height: 20.h),
-
-//               DefaultTextStyle(
-//                 style: TextStyle(
-//                   fontSize: 32.sp,
-//                   fontFamily: "Changa",
-//                   color: Colors.black,
-//                 ),
-//                 child: AnimatedTextKit(
-//                   animatedTexts: [WavyAnimatedText('Mero Audio Player')],
-//                   isRepeatingAnimation: true,
-//                   onTap: () {},
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(color: Color(0xFFF5EFE2)),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Assets.images.logo.image(width: 0.9.sw, height: 0.9.sw),
+                Text(
+                  'Mero Audio Player',
+                  style: TextStyles.displayLarge.copyWith(color: Colors.black),
+                ),
+                SizedBox(height: 10.h),
+                AppCircularProgressIndicator(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

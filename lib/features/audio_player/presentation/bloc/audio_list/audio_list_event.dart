@@ -9,6 +9,15 @@ abstract class AudioListEvent extends Equatable {
 
 class FetchAudioList extends AudioListEvent {}
 
+class LoadAudioList extends AudioListEvent {
+  final List<AudioFile> audios;
+
+  const LoadAudioList(this.audios);
+
+  @override
+  List<Object?> get props => [audios];
+}
+
 class SearchAudio extends AudioListEvent {
   final String query;
   const SearchAudio(this.query);

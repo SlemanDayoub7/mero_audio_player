@@ -1,8 +1,9 @@
-import 'package:azlistview_plus/azlistview_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
@@ -16,24 +17,11 @@ import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 import 'package:mero_audio_player/injection.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-// Extend your artist model with ISuspensionBean
-class AzArtist implements ISuspensionBean {
+class AzArtist {
   final String tag;
-  final dynamic original;
-  bool _isShowSuspension = false; // Internal flag to show suspension
+  final ArtistModel original;
 
   AzArtist({required this.tag, required this.original});
-
-  @override
-  String getSuspensionTag() => tag;
-
-  @override
-  bool get isShowSuspension => _isShowSuspension;
-
-  @override
-  set isShowSuspension(bool show) {
-    _isShowSuspension = show;
-  }
 }
 
 class ArtistListPage extends StatefulWidget {
@@ -45,130 +33,195 @@ class ArtistListPage extends StatefulWidget {
 
 class _ArtistListPageState extends State<ArtistListPage> {
   final TextEditingController controller = TextEditingController();
+  late Map<String, List<AzArtist>> groupedArtists;
+  late List<String> indexChars;
+  final ScrollController _scrollController = ScrollController();
 
   List<AzArtist> _buildAzList(List<ArtistModel> artists) {
     List<AzArtist> list =
         artists.map((artist) {
           String firstChar = artist.artist[0];
-
           if (RegExp(r'^[\u0600-\u06FF\u0750-\u077F]').hasMatch(firstChar)) {
-            return AzArtist(
-              tag: firstChar,
-              original: artist,
-            ); // حرف عربي بدون تغيير
+            return AzArtist(tag: firstChar, original: artist);
           } else {
-            // الحرف غير عربي - حوله إلى upper case
             return AzArtist(tag: firstChar.toUpperCase(), original: artist);
           }
         }).toList();
 
-    // ترتيب القائمة وإعداد حالة عرض الشريط
-    SuspensionUtil.sortListBySuspensionTag(list);
-    SuspensionUtil.setShowSuspensionStatus(list);
-
+    list.sort((a, b) => a.tag.compareTo(b.tag));
     return list;
+  }
+
+  void _groupData(List<AzArtist> azList) {
+    groupedArtists = {};
+    for (var artist in azList) {
+      groupedArtists.putIfAbsent(artist.tag, () => []);
+      groupedArtists[artist.tag]!.add(artist);
+    }
+    indexChars = groupedArtists.keys.toList()..sort();
+  }
+
+  void _scrollToTag(String tag) {
+    double offset = 0;
+    for (var t in indexChars) {
+      if (t == tag) break;
+      offset += 50.h + (groupedArtists[t]?.length ?? 0) * 72.h;
+    }
+    _scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(right: 8.w, left: 8.w),
-          child: SearchField(
-            controller: controller,
-            hintText: LocaleKeys.searchArtist.tr(),
-            onChanged: (query) {
-              context.read<ArtistListBloc>().add(SearchArtist(query: query));
-            },
+    return RefreshIndicator(
+      backgroundColor: globalBackgroundColor,
+      color: Colors.white,
+      onRefresh: () async {
+        context.read<ArtistListBloc>().add(FetchArtistList());
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: SearchField(
+              controller: controller,
+
+              onChanged: (query) {
+                context.read<ArtistListBloc>().add(SearchArtist(query: query));
+              },
+              hintText: LocaleKeys.searchArtist.tr(),
+            ),
           ),
-        ),
-        Expanded(
-          child: BlocBuilder<ArtistListBloc, ArtistListState>(
-            builder: (context, state) {
-              if (state is ArtistListLoading) {
-                return AppCircularProgressIndicator();
-              } else if (state is ArtistListLoaded) {
-                if (state.artists.isEmpty) {
-                  return AppNoDataText();
-                }
-                final azList = _buildAzList(state.artists);
+          context.emptySizedHeightLow,
+          Expanded(
+            child: BlocBuilder<ArtistListBloc, ArtistListState>(
+              builder: (context, state) {
+                if (state is ArtistListLoading) {
+                  return AppCircularProgressIndicator();
+                } else if (state is ArtistListLoaded) {
+                  if (state.artists.isEmpty) {
+                    return AppNoDataText();
+                  }
+                  final azList = _buildAzList(state.artists);
+                  _groupData(azList);
 
-                return AzListView(
-                  indexBarAlignment:
-                      context.locale.languageCode == 'ar'
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                  data: azList,
-
-                  itemCount: azList.length,
-                  itemBuilder: (context, index) {
-                    final item = azList[index];
-                    final artist = item.original;
-
-                    return Padding(
-                      padding: EdgeInsetsDirectional.only(start: 10.w),
-                      child: InkWell(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => BlocProvider<ArtistListBloc>(
-                                    create:
-                                        (context) => ArtistListBloc(
-                                          repository: Injection.audioRepository,
-                                        )..add(
-                                          FetchSongsByArtist(
-                                            artistName: artist.artist,
-                                          ),
-                                        ),
-                                    child: ArtistDetailPage(artist: artist),
+                  return Row(
+                    children: [
+                      // Container(
+                      //   width: 32.w,
+                      //   color: globalBackgroundColor?.withOpacity(0.3),
+                      //   child: ListView.builder(
+                      //     itemCount: indexChars.length,
+                      //     itemBuilder: (context, index) {
+                      //       final letter = indexChars[index];
+                      //       final isArabic = RegExp(
+                      //         r'^[\u0600-\u06FF]',
+                      //       ).hasMatch(letter);
+                      //       return GestureDetector(
+                      //         onTap: () => _scrollToTag(letter),
+                      //         child: Container(
+                      //           height: 24.h,
+                      //           alignment: Alignment.center,
+                      //           child: Text(
+                      //             letter,
+                      //             style: TextStyles.titleSmall.copyWith(
+                      //               color: isArabic ? Colors.amber : Colors.white,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
+                      Expanded(
+                        child: CustomScrollView(
+                          controller: _scrollController,
+                          slivers:
+                              indexChars.map((tag) {
+                                final artists = groupedArtists[tag]!;
+                                return SliverStickyHeader(
+                                  header: Container(
+                                    height: 50.h,
+                                    color: globalBackgroundColor?.withOpacity(
+                                      0.3,
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w,
+                                    ),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      tag,
+                                      style: TextStyles.titleMedium.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                            ),
-                          );
-                          context.read<ArtistListBloc>().add(FetchArtistList());
-                        },
-                        child: ArtistWidget(artist: artist),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate((
+                                      context,
+                                      index,
+                                    ) {
+                                      final artist = artists[index].original;
+                                      return Padding(
+                                        padding: EdgeInsetsDirectional.only(
+                                          start: 10.w,
+                                        ),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => BlocProvider<
+                                                      ArtistListBloc
+                                                    >(
+                                                      create:
+                                                          (
+                                                            context,
+                                                          ) => ArtistListBloc(
+                                                            repository:
+                                                                Injection
+                                                                    .audioRepository,
+                                                          )..add(
+                                                            FetchSongsByArtist(
+                                                              artistName:
+                                                                  artist.artist,
+                                                            ),
+                                                          ),
+                                                      child: ArtistDetailPage(
+                                                        artist: artist,
+                                                      ),
+                                                    ),
+                                              ),
+                                            );
+                                            context.read<ArtistListBloc>().add(
+                                              FetchArtistList(),
+                                            );
+                                          },
+                                          child: ArtistWidget(artist: artist),
+                                        ),
+                                      );
+                                    }, childCount: artists.length),
+                                  ),
+                                );
+                              }).toList(),
+                        ),
                       ),
-                    );
-                  },
-                  indexBarMargin: EdgeInsets.zero,
-                  indexBarOptions: IndexBarOptions(
-                    indexHintWidth: 50.w,
-                    textStyle: TextStyles.titleSmall.copyWith(
-                      color: Colors.white,
-                    ),
-
-                    needRebuild: true,
-                    selectTextStyle: TextStyles.titleMedium.copyWith(
-                      color: Colors.white,
-                    ),
-                    selectItemDecoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: globalBackgroundColor,
-                      border: Border.all(width: 0.1.r, color: Colors.white),
-                    ),
-
-                    indexHintAlignment: Alignment.center,
-                    indexHintTextStyle: TextStyles.titleMedium.copyWith(
-                      color: Colors.white,
-                    ),
-                    indexHintDecoration: BoxDecoration(
-                      color: globalBackgroundColor,
-
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                );
-              } else if (state is ArtistListError) {
-                return AppErrorText(errorMessage: state.message);
-              }
-              return const SizedBox.shrink();
-            },
+                    ],
+                  );
+                } else if (state is ArtistListError) {
+                  return AppErrorText(errorMessage: state.message);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

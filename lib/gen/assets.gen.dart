@@ -32,6 +32,9 @@ class $AssetsIconsGen {
   SvgGenImage get deletePlaylist =>
       const SvgGenImage('assets/icons/delete_playlist.svg');
 
+  /// File path: assets/icons/equalizer.svg
+  SvgGenImage get equalizer => const SvgGenImage('assets/icons/equalizer.svg');
+
   /// File path: assets/icons/favorite.svg
   SvgGenImage get favorite => const SvgGenImage('assets/icons/favorite.svg');
 
@@ -145,6 +148,7 @@ class $AssetsIconsGen {
         backward10Second,
         cut,
         deletePlaylist,
+        equalizer,
         favorite,
         favoriteFill,
         favoriteList,
@@ -181,80 +185,237 @@ class $AssetsIconsGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
-  /// File path: assets/images/background.jpg
-  AssetGenImage get background =>
-      const AssetGenImage('assets/images/background.jpg');
-
-  /// File path: assets/images/bg_four.jpg
-  AssetGenImage get bgFour => const AssetGenImage('assets/images/bg_four.jpg');
-
-  /// File path: assets/images/bg_one.jpg
-  AssetGenImage get bgOne => const AssetGenImage('assets/images/bg_one.jpg');
-
-  /// File path: assets/images/bg_three.jpg
-  AssetGenImage get bgThree =>
-      const AssetGenImage('assets/images/bg_three.jpg');
-
-  /// File path: assets/images/bg_two.jpg
-  AssetGenImage get bgTwo => const AssetGenImage('assets/images/bg_two.jpg');
+  /// File path: assets/images/logo.png
+  AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
 
   /// File path: assets/images/mate.jpg
-  AssetGenImage get mate => const AssetGenImage('assets/images/mate.jpg');
+  AssetGenImage get mateJpg => const AssetGenImage('assets/images/mate.jpg');
 
-  /// File path: assets/images/mero.jpg
-  AssetGenImage get mero => const AssetGenImage('assets/images/mero.jpg');
+  /// File path: assets/images/mate.png
+  AssetGenImage get matePng => const AssetGenImage('assets/images/mate.png');
 
   /// List of all assets
-  List<AssetGenImage> get values =>
-      [background, bgFour, bgOne, bgThree, bgTwo, mate, mero];
+  List<AssetGenImage> get values => [logo, mateJpg, matePng];
 }
 
 class $AssetsLocalesGen {
   const $AssetsLocalesGen();
 
+  /// File path: assets/locales/af.json
+  String get af => 'assets/locales/af.json';
+
+  /// File path: assets/locales/am.json
+  String get am => 'assets/locales/am.json';
+
   /// File path: assets/locales/ar.json
   String get ar => 'assets/locales/ar.json';
+
+  /// File path: assets/locales/be.json
+  String get be => 'assets/locales/be.json';
+
+  /// File path: assets/locales/bg.json
+  String get bg => 'assets/locales/bg.json';
+
+  /// File path: assets/locales/ca.json
+  String get ca => 'assets/locales/ca.json';
+
+  /// File path: assets/locales/cs.json
+  String get cs => 'assets/locales/cs.json';
+
+  /// File path: assets/locales/da.json
+  String get da => 'assets/locales/da.json';
+
+  /// File path: assets/locales/de.json
+  String get de => 'assets/locales/de.json';
+
+  /// File path: assets/locales/el.json
+  String get el => 'assets/locales/el.json';
 
   /// File path: assets/locales/en.json
   String get en => 'assets/locales/en.json';
 
+  /// File path: assets/locales/es.json
+  String get es => 'assets/locales/es.json';
+
+  /// File path: assets/locales/et.json
+  String get et => 'assets/locales/et.json';
+
+  /// File path: assets/locales/fa.json
+  String get fa => 'assets/locales/fa.json';
+
+  /// File path: assets/locales/fi.json
+  String get fi => 'assets/locales/fi.json';
+
+  /// File path: assets/locales/fr.json
+  String get fr => 'assets/locales/fr.json';
+
+  /// File path: assets/locales/he.json
+  String get he => 'assets/locales/he.json';
+
+  /// File path: assets/locales/hi.json
+  String get hi => 'assets/locales/hi.json';
+
+  /// File path: assets/locales/hr.json
+  String get hr => 'assets/locales/hr.json';
+
+  /// File path: assets/locales/hu.json
+  String get hu => 'assets/locales/hu.json';
+
+  /// File path: assets/locales/hy.json
+  String get hy => 'assets/locales/hy.json';
+
+  /// File path: assets/locales/id.json
+  String get id => 'assets/locales/id.json';
+
+  /// File path: assets/locales/it.json
+  String get it => 'assets/locales/it.json';
+
+  /// File path: assets/locales/ja.json
+  String get ja => 'assets/locales/ja.json';
+
+  /// File path: assets/locales/kk.json
+  String get kk => 'assets/locales/kk.json';
+
+  /// File path: assets/locales/ko.json
+  String get ko => 'assets/locales/ko.json';
+
+  /// File path: assets/locales/ku.json
+  String get ku => 'assets/locales/ku.json';
+
+  /// File path: assets/locales/lt.json
+  String get lt => 'assets/locales/lt.json';
+
+  /// File path: assets/locales/lv.json
+  String get lv => 'assets/locales/lv.json';
+
+  /// File path: assets/locales/ms.json
+  String get ms => 'assets/locales/ms.json';
+
+  /// File path: assets/locales/nl.json
+  String get nl => 'assets/locales/nl.json';
+
+  /// File path: assets/locales/pl.json
+  String get pl => 'assets/locales/pl.json';
+
+  /// File path: assets/locales/pt.json
+  String get pt => 'assets/locales/pt.json';
+
+  /// File path: assets/locales/ro.json
+  String get ro => 'assets/locales/ro.json';
+
+  /// File path: assets/locales/ru.json
+  String get ru => 'assets/locales/ru.json';
+
+  /// File path: assets/locales/sk.json
+  String get sk => 'assets/locales/sk.json';
+
+  /// File path: assets/locales/sl.json
+  String get sl => 'assets/locales/sl.json';
+
+  /// File path: assets/locales/sr.json
+  String get sr => 'assets/locales/sr.json';
+
+  /// File path: assets/locales/sv.json
+  String get sv => 'assets/locales/sv.json';
+
+  /// File path: assets/locales/sw.json
+  String get sw => 'assets/locales/sw.json';
+
+  /// File path: assets/locales/th.json
+  String get th => 'assets/locales/th.json';
+
+  /// File path: assets/locales/tl.json
+  String get tl => 'assets/locales/tl.json';
+
+  /// File path: assets/locales/tr.json
+  String get tr => 'assets/locales/tr.json';
+
+  /// File path: assets/locales/uk.json
+  String get uk => 'assets/locales/uk.json';
+
+  /// File path: assets/locales/vi.json
+  String get vi => 'assets/locales/vi.json';
+
+  /// File path: assets/locales/zh.json
+  String get zh => 'assets/locales/zh.json';
+
+  /// File path: assets/locales/zu.json
+  String get zu => 'assets/locales/zu.json';
+
   /// List of all assets
-  List<String> get values => [ar, en];
+  List<String> get values => [
+        af,
+        am,
+        ar,
+        be,
+        bg,
+        ca,
+        cs,
+        da,
+        de,
+        el,
+        en,
+        es,
+        et,
+        fa,
+        fi,
+        fr,
+        he,
+        hi,
+        hr,
+        hu,
+        hy,
+        id,
+        it,
+        ja,
+        kk,
+        ko,
+        ku,
+        lt,
+        lv,
+        ms,
+        nl,
+        pl,
+        pt,
+        ro,
+        ru,
+        sk,
+        sl,
+        sr,
+        sv,
+        sw,
+        th,
+        tl,
+        tr,
+        uk,
+        vi,
+        zh,
+        zu
+      ];
 }
 
 class $AssetsLottieGen {
   const $AssetsLottieGen();
 
-  /// File path: assets/lottie/Crazy bottle rocker.json
-  String get crazyBottleRocker => 'assets/lottie/Crazy bottle rocker.json';
+  /// File path: assets/lottie/Decent Soundwaves white.json
+  String get decentSoundwavesWhite =>
+      'assets/lottie/Decent Soundwaves white.json';
 
   /// File path: assets/lottie/Decent Soundwaves.json
   String get decentSoundwaves => 'assets/lottie/Decent Soundwaves.json';
 
-  /// File path: assets/lottie/Happy Spaceman.json
-  String get happySpaceman => 'assets/lottie/Happy Spaceman.json';
-
   /// File path: assets/lottie/Music Note Character.json
   String get musicNoteCharacter => 'assets/lottie/Music Note Character.json';
-
-  /// File path: assets/lottie/Play dvd, disk.json
-  String get playDvdDisk => 'assets/lottie/Play dvd, disk.json';
 
   /// File path: assets/lottie/Sound Animation.json
   String get soundAnimation => 'assets/lottie/Sound Animation.json';
 
-  /// File path: assets/lottie/Tiger Happy.json
-  String get tigerHappy => 'assets/lottie/Tiger Happy.json';
-
   /// List of all assets
   List<String> get values => [
-        crazyBottleRocker,
+        decentSoundwavesWhite,
         decentSoundwaves,
-        happySpaceman,
         musicNoteCharacter,
-        playDvdDisk,
-        soundAnimation,
-        tigerHappy
+        soundAnimation
       ];
 }
 

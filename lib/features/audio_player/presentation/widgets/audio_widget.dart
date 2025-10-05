@@ -8,12 +8,10 @@ import 'package:mero_audio_player/features/audio_player/domain/entities/audio_fi
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/ringtone/ringtone_bloc.dart';
-
-import 'package:mero_audio_player/features/audio_player/presentation/pages/ringtone/set_ringtone_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_options_sheet.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/mini_music_visualizer_widget.dart';
+import 'package:mero_audio_player/injection.dart';
 
 class AudioWidget extends StatelessWidget {
   const AudioWidget({
@@ -26,9 +24,10 @@ class AudioWidget extends StatelessWidget {
     this.onLongPress,
     this.onTap,
     this.selectionMode = false,
-    required this.playSource,
+    required this.playSourceL,
     this.onDelete,
     this.showOptions = true,
+    this.image,
   });
 
   final List<AudioFile>? audios;
@@ -40,14 +39,17 @@ class AudioWidget extends StatelessWidget {
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
-  final PlaySource playSource;
+  final PlaySource playSourceL;
   final bool? showOptions;
+  final String? image;
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap:
           onTap ??
           () {
+            print(audio.albumId);
+            playSource = playSourceL;
             context.read<AudioPlayerBloc>().add(
               audios!.isEmpty
                   ? PlayAudio(
@@ -69,7 +71,11 @@ class AudioWidget extends StatelessWidget {
           spacing: 3.w,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            AudioArtworkWidget(audio: audio, size: 50.r),
+            AudioArtworkWidget(
+              audio: audio,
+              size: 50.r,
+              showIconNullWidget: true,
+            ),
 
             Expanded(
               child: Column(
@@ -99,7 +105,7 @@ class AudioWidget extends StatelessWidget {
                     showAudioOptionsBottomSheet(
                       context,
                       audio,
-                      playSource,
+                      playSourceL,
                       onDelete: onDelete,
                       artistName: artist,
                       playlistName: playListName,

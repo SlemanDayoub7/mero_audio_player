@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -6,21 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/hive_flutter.dart' show Hive;
+import 'package:hive_flutter/hive_flutter.dart' show Hive, HiveX;
 import 'package:media_store_plus/media_store_plus.dart';
 
 import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/constants/languages.dart';
 import 'package:mero_audio_player/core/locale_cubit.dart';
-
-import 'package:mero_audio_player/main_screen.dart';
-import 'package:mero_audio_player/permission_request_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/splash/splash_screen.dart';
 
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:ringtone_set_plus/ringtone_set_plus.dart';
 import 'injection.dart';
 
 final MediaStore mediaStore = MediaStore();
+Completer<bool>? permissionCompleter;
 
 bool ok = false;
 final OnAudioQuery audioQuery = OnAudioQuery();
@@ -39,7 +40,6 @@ void main() async {
   }
   await permissions.request();
 
-  // لازم تحدد فولدر للتطبيق
   MediaStore.appFolder = "MeroAudioPlayer";
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(statusBarColor: Colors.transparent),
@@ -51,8 +51,11 @@ void main() async {
   ]);
   // Initialize dependencies
   await EasyLocalization.ensureInitialized();
-  ok = await audioQuery.permissionsStatus();
-  await Injection.init();
+  // ok = await audioQuery.permissionsStatus();
+  // await Injection.init();
+  // Initialize Hive
+  await Hive.initFlutter();
+
   var box = await Hive.openBox('settings');
   String? savedLangCode = box.get('locale');
 
@@ -62,7 +65,7 @@ void main() async {
           savedLangCode != null
               ? Locale(savedLangCode)
               : Locale(ui.window.locale.languageCode),
-      fallbackLocale: Languages.arabic.locale,
+      fallbackLocale: Languages.en.locale,
       path: 'assets/locales',
       supportedLocales: Languages.list.map((e) => e.locale).toList(),
       child: MyApp(),
@@ -93,11 +96,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     // التطبيق خرج من الواجهة (swipe away أو الخلفية)
-    if (state == AppLifecycleState.paused) {
-      // تحقق إذا الأغنية مش شغالة
-      if (!Injection.audioHandler.player.playing) {
-        await Injection.audioHandler.stop(); // يوقف كل شيء ويزيل الإشعار
-      }
+    // if (state == AppLifecycleState.detached) {
+    //   await Injection.audioHandler.stop(); // يوقف كل شيء ويزيل الإشعار
+    // }
+    if (state == AppLifecycleState.resumed &&
+        permissionCompleter != null &&
+        !permissionCompleter!.isCompleted) {
+      RingtoneSet.isWriteSettingsGranted.then((granted) {
+        permissionCompleter?.complete(granted);
+        permissionCompleter = null;
+      });
     }
   }
 
@@ -121,7 +129,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   localizationsDelegates: context.localizationDelegates,
                   locale: locale,
                   theme: ThemeData(fontFamily: 'Changa'),
-                  home: !ok ? PermissionRequestPage() : MainScreen(),
+                  home: SplashScreen(),
+                  // !ok ? PermissionRequestPage() : MainScreen(),
                 );
               },
             ),

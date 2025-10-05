@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:media_store_plus/media_store_plus.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
-
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
@@ -19,8 +17,10 @@ import 'package:mero_audio_player/features/audio_player/presentation/bloc/ringto
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/add_to_playlist_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/ringtone/set_ringtone_page.dart';
+import 'package:mero_audio_player/features/audio_player/services/media_store_service.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
+import 'package:mero_audio_player/main.dart';
 import 'package:ringtone_set_plus/ringtone_set_plus.dart';
 
 void showAudioOptionsBottomSheet(
@@ -160,54 +160,84 @@ class AudioOptionsSheet extends StatelessWidget {
             text: LocaleKeys.setRingtone.tr(),
             icon: Assets.icons.ringtone,
             onTap: () async {
-              bool result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => BlocProvider<SetRingToneBloc>(
-                        create: (context) => SetRingToneBloc(),
-                        child: SetRingtonePage(audioFile: audio),
-                      ),
-                ),
-              );
-              if (result == true) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Ringtone set successfully!')),
+              if (!(await RingtoneSet.isWriteSettingsGranted)) {
+                permissionCompleter = Completer<bool>();
+                await SystemSettings.openWriteSettings();
+                // Now wait for user to return and permission to be rechecked
+                return permissionCompleter!.future.then((granted) async {
+                  if (!granted) return;
+
+                  bool? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => BlocProvider<SetRingToneBloc>(
+                            create: (context) => SetRingToneBloc(),
+                            child: SetRingtonePage(audioFile: audio),
+                          ),
+                    ),
+                  );
+                  if (result == true) {
+                    context.read<AlbumListBloc>().add(FetchAlbumList());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(LocaleKeys.ringtoneSet.tr())),
+                    );
+                  }
+
+                  Navigator.pop(context);
+                });
+              } else {
+                // Permission already granted, proceed immediately
+                bool? result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => BlocProvider<SetRingToneBloc>(
+                          create: (context) => SetRingToneBloc(),
+                          child: SetRingtonePage(audioFile: audio),
+                        ),
+                  ),
                 );
+                if (result == true) {
+                  // context.read<PlaylistBloc>().add(LoadPlaylists());
+                  // context.read<ArtistListBloc>().add(FetchArtistList());
+                  // context.read<AudioListBloc>().add(FetchAudioList());
+                  // context.read<AlbumListBloc>().add(FetchAlbumList());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(LocaleKeys.ringtoneSet.tr())),
+                  );
+                }
+
+                Navigator.pop(context);
               }
-              context.read<PlaylistBloc>().add(LoadPlaylists());
-              context.read<ArtistListBloc>().add(FetchArtistList());
-              context.read<AudioListBloc>().add(FetchAudioList());
-              context.read<AlbumListBloc>().add(FetchAlbumList());
-              Navigator.pop(context);
             },
           ),
 
-          _buildOption(
-            context,
-            text: LocaleKeys.setNotificationTone.tr(),
-            icon: Assets.icons.notificationRing,
-            onTap: () async {
-              await confirmAndExecute(
-                context: context,
-                confirmMessage:
-                    LocaleKeys.currentAudioWillBeNotificationTone.tr(),
-                errorMessage: '',
-                successMessage: LocaleKeys.fileSetAsNotificationTone.tr(),
-                action: () async {
-                  bool success = false;
-                  try {
-                    success = await RingtoneSet.setNotificationFromFile(
-                      File(audio.data ?? ''),
-                    );
-                  } on PlatformException {
-                    success = false;
-                  }
-                },
-              );
-              Navigator.pop(context);
-            },
-          ),
+          // _buildOption(
+          //   context,
+          //   text: LocaleKeys.setNotificationTone.tr(),
+          //   icon: Assets.icons.notificationRing,
+          //   onTap: () async {
+          //     await confirmAndExecute(
+          //       context: context,
+          //       confirmMessage:
+          //           LocaleKeys.currentAudioWillBeNotificationTone.tr(),
+          //       errorMessage: '',
+          //       successMessage: LocaleKeys.fileSetAsNotificationTone.tr(),
+          //       action: () async {
+          //         bool success = false;
+          //         try {
+          //           success = await RingtoneSet.setNotificationFromFile(
+          //             File(audio.data ?? ''),
+          //           );
+          //         } on PlatformException {
+          //           success = false;
+          //         }
+          //       },
+          //     );
+          //     Navigator.pop(context);
+          //   },
+          // ),
         ],
       ),
     );
@@ -243,4 +273,17 @@ Future<void> deleteAudioFileFromMediaStore(String path) async {
   final deleted = await mediaStore.deleteFileUsingUri(uriString: path);
   if (deleted) {
   } else {}
+}
+
+Future<bool> requestWriteSettingsPermission() async {
+  if (!(await RingtoneSet.isWriteSettingsGranted)) {
+    // Permission permanently denied, open app settings for manual enable
+    // await openAppSettings();
+    await SystemSettings.openWriteSettings().then((_) {
+      // You can add more logic here after the settings screen is opened,
+      // but note this does NOT wait for user action or permission grant.
+    });
+  }
+
+  return await RingtoneSet.isWriteSettingsGranted;
 }

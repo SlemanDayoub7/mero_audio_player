@@ -7,6 +7,9 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.UUID
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 
 class MainActivity: AudioServiceActivity()  {
     private val CHANNEL = "com.example.mero_audio_player/audio_trimmer"
@@ -18,6 +21,16 @@ class MainActivity: AudioServiceActivity()  {
             call, result ->
             
             when (call.method) {
+                "openWriteSettings"->{
+                    val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                    intent.data = Uri.parse("package:com.example.mero_audio_player")
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
+                        result.success(null)
+                    } else {
+                        result.error("UNAVAILABLE", "Cannot open WRITE_SETTINGS settings", null)
+                    }
+                }
                 "trimAudio"-> {
                     val inputPath = call.argument<String>("inputPath")
                     val startMs = call.argument<Int>("startMs") ?: 0

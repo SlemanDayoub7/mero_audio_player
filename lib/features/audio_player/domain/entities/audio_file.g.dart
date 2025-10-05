@@ -17,6 +17,7 @@ class AudioFileAdapter extends TypeAdapter<AudioFile> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return AudioFile(
+      albumId: fields[14] as String?,
       data: fields[12] as String?,
       genre: fields[13] as String?,
       id: fields[0] as int,
@@ -31,13 +32,14 @@ class AudioFileAdapter extends TypeAdapter<AudioFile> {
       dateAdded: fields[9] as int?,
       track: fields[10] as int?,
       albumArtBytes: fields[11] as Uint8List?,
+      artworkFilePath: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AudioFile obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +67,11 @@ class AudioFileAdapter extends TypeAdapter<AudioFile> {
       ..writeByte(12)
       ..write(obj.data)
       ..writeByte(13)
-      ..write(obj.genre);
+      ..write(obj.genre)
+      ..writeByte(14)
+      ..write(obj.albumId)
+      ..writeByte(15)
+      ..write(obj.artworkFilePath);
   }
 
   @override

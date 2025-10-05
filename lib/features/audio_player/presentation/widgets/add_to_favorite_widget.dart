@@ -32,6 +32,7 @@ class _AddToFavoriteWidgetState extends State<AddToFavoriteWidget> {
           context.read<PlaylistBloc>().add(
             RemoveAudioFromPlaylist('0', widget.audioFile),
           );
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(LocaleKeys.file_removed_from_favorites.tr()),

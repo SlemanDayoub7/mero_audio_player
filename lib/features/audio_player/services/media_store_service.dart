@@ -14,3 +14,17 @@ class MediaStoreService {
     }
   }
 }
+
+class SystemSettings {
+  static const platform = MethodChannel(
+    'com.example.mero_audio_player/audio_trimmer',
+  );
+
+  static Future<void> openWriteSettings() async {
+    try {
+      await platform.invokeMethod('openWriteSettings');
+    } on PlatformException catch (e) {
+      print("Failed to open settings: '${e.message}'.");
+    }
+  }
+}

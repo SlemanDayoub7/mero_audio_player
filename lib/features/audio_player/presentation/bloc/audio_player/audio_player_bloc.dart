@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equalizer_flutter/equalizer_flutter.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
@@ -239,6 +240,15 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
 
       emit(_mapToState(current: audio));
     }
+  }
+
+  @override
+  Future<void> close() {
+    print('sss');
+    EqualizerFlutter.release();
+    EqualizerFlutter.setEnabled(false);
+    EqualizerFlutter.removeAudioSessionId(0);
+    return super.close();
   }
 }
 

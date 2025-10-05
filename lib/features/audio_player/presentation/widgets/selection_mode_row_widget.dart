@@ -6,12 +6,8 @@ import 'package:media_store_plus/media_store_plus.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
-
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/album_list/album_list_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/artist_list/artist_list_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/full_player_page.dart';
@@ -24,10 +20,10 @@ class SelectionModeRowWidget extends StatelessWidget {
   final Function() onSelectAll;
   final Set<AudioFile> selected;
   final int audiosLength;
-
+  final String? playlistName;
   final double? bottomMargin;
   final PlaySource? playSource;
-
+  final Function()? onDelete;
   const SelectionModeRowWidget({
     super.key,
     required this.onSelectAll,
@@ -35,6 +31,8 @@ class SelectionModeRowWidget extends StatelessWidget {
     required this.audiosLength,
     this.bottomMargin,
     this.playSource = PlaySource.artist,
+    this.onDelete,
+    this.playlistName,
   });
 
   @override
@@ -63,7 +61,7 @@ class SelectionModeRowWidget extends StatelessWidget {
             ),
             Center(
               child: Text(
-                '${selected.length > 99999999 ? "+99999999" : selected.length} ${LocaleKeys.selected.tr()}',
+                '${selected.length > 999999 ? "+999999" : selected.length} ${LocaleKeys.selected.tr()}',
                 style: TextStyles.titleLarge.copyWith(color: Colors.white),
               ),
             ),
@@ -96,34 +94,32 @@ class SelectionModeRowWidget extends StatelessWidget {
               },
             ),
 
-            // ControlIconWidget(
-            //   size: 35.sp,
-            //   svgGenImage: Assets.icons.removeAll,
-            //   opacity: 0,
-            //   onPressed: () async {
-            //     await confirmAndExecute(
-            //       context: context,
-            //       showSuccess: false,
-            //       confirmMessage:
-            //           LocaleKeys.delete_files.tr(), // localize if needed
-            //       errorMessage: LocaleKeys.delete_error.tr(),
-            //       successMessage: LocaleKeys.files_deleted_success.tr(),
-            //       action: () async {
-            //         await deleteMultipleAudioFiles(
-            //           selected.map((e) => e.uri!).toList(),
-            //         );
-            //         context.read<PlaylistBloc>().add(LoadPlaylists());
-            //         context.read<AlbumListBloc>().add(FetchAlbumList());
-            //         context.read<ArtistListBloc>().add(FetchArtistList());
-            //         context.read<AudioListBloc>().add(FetchAudioList());
-            //         if (playSource != PlaySource.audioList) {
-            //           Navigator.pop(context);
-            //         }
-            //         selected.clear();
-            //       },
-            //     );
-            //   },
-            // ),
+            if (playlistName != null)
+              ControlIconWidget(
+                size: 35.sp,
+                svgGenImage: Assets.icons.removeAll,
+                opacity: 0,
+                onPressed: () async {
+                  await confirmAndExecute(
+                    context: context,
+                    showSuccess: false,
+                    confirmMessage:
+                        LocaleKeys.delete_files_playlist
+                            .tr(), // localize if needed
+                    errorMessage: LocaleKeys.delete_error.tr(),
+                    successMessage: LocaleKeys.files_deleted_success.tr(),
+                    action: () async {
+                      selected.forEach(
+                        (audio) => context.read<PlaylistBloc>().add(
+                          RemoveAudioFromPlaylist(playlistName!, audio),
+                        ),
+                      );
+                      Navigator.pop(context);
+                      selected.clear();
+                    },
+                  );
+                },
+              ),
             context.emptySizedWidthLow,
           ],
         ),

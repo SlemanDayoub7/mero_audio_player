@@ -79,6 +79,7 @@ class _CurrentAudioWidgetState extends State<CurrentAudioWidget> {
                       child: AudioArtworkWidget(
                         backgroundColor: Colors.grey.withOpacity(0.4),
                         audio: state.current!,
+                        showIconNullWidget: true,
                         size: 50.sp,
                       ),
                     ),

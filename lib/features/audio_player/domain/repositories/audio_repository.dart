@@ -1,3 +1,4 @@
+import 'package:mero_audio_player/features/audio_player/domain/entities/artwork.dart';
 import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 

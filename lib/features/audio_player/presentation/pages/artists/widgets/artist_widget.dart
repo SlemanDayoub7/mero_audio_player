@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
@@ -30,7 +31,7 @@ class ArtistWidget extends StatelessWidget {
                 ),
                 context.emptySizedHeightLow,
                 Text(
-                  '${artist.numberOfTracks} ${LocaleKeys.song}',
+                  '${artist.numberOfTracks} ${LocaleKeys.song.tr()}',
                   style: TextStyles.titleSmall.copyWith(color: Colors.white),
                   maxLines: 1,
                 ),

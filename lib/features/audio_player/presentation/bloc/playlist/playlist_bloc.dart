@@ -23,6 +23,7 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
             Playlist(name: '0', audios: [], id: ''),
           );
           playlists = await repository.getAllPlaylists();
+          _fullPlayLists = playlists;
         }
         emit(PlaylistLoaded(playlists: playlists));
       } catch (e) {

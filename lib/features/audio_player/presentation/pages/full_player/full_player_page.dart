@@ -9,6 +9,8 @@ import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/widgets/audio_title_marquee.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/widgets/slider_progress.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/equalizer_ui.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/audios_bottom_sheet.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/speed_drop_down.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/add_to_favorite_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
@@ -21,330 +23,414 @@ import '../../bloc/audio_player/audio_player_bloc.dart';
 class FullPlayerPage extends StatelessWidget {
   const FullPlayerPage({super.key});
 
+  // Open device equalizer
+
   @override
   Widget build(BuildContext context) {
     final audioBloc = context.read<AudioPlayerBloc>();
     final player = audioBloc.playerHandler.player;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          AppBackgroundImage(isForPlayer: true),
-          BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
-            builder: (context, state) {
-              final current = state.current;
-              if (current == null) return const SizedBox.shrink();
+      body: SizedBox(
+        height: 1.sh,
+        width: 1.sw,
+        child: Stack(
+          children: [
+            AppBackgroundImage(isForPlayer: true),
+            BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
+              builder: (context, state) {
+                final current = state.current;
+                if (current == null) return const SizedBox.shrink();
 
-              return Column(
-                children: [
-                  context.emptySizedHeightMedium,
-                  // 🔹 1. الشريط العلوي
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                    child: Row(
-                      children: [
-                        ControlIconWidget(
-                          icon: Icons.arrow_back,
-                          size: 35.sp,
-                          opacity: 0,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        Expanded(
-                          child: Text(
-                            current.artistOrUnknown,
-                            style: TextStyles.titleMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        AddToFavoriteWidget(audioFile: current),
-                      ],
-                    ),
-                  ),
-
-                  // 🔹 2. Artwork / لوتى
-                  Expanded(
-                    flex: 4,
-                    child: StreamBuilder<bool>(
-                      stream: player.playingStream,
-                      initialData: player.playing,
-                      builder: (context, snapshot) {
-                        final isPlaying = snapshot.data ?? false;
-                        return Center(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Lottie.asset(
-                                globalLottiePath,
-                                animate: isPlaying,
-                                height: 420.h,
-                              ),
-                              AudioArtworkWidget(
-                                audio: current,
-                                size: 100.r,
-                                borderRadius: 100.r,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  // 🔹 3. عنوان + ألبوم + Slider
-                  Expanded(
-                    flex: 2,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                return Column(
+                  children: [
+                    context.emptySizedHeightMedium,
+                    // 🔹 1. الشريط العلوي
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 12.h,
+                      ),
+                      child: Row(
                         children: [
-                          AudioTitleMarquee(audioTitle: current.title),
-                          Text(
-                            current.album ?? '',
-                            style: TextStyles.displaySmall.copyWith(
-                              color: Colors.white70,
+                          ControlIconWidget(
+                            icon: Icons.arrow_back,
+                            size: 35.sp,
+                            opacity: 0,
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          Expanded(
+                            child: Text(
+                              current.artistOrUnknown,
+                              style: TextStyles.titleMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
                             ),
-                            maxLines: 1,
-                            textAlign: TextAlign.center,
                           ),
-                          StreamBuilder<Duration>(
-                            stream: player.positionStream,
-                            builder: (context, snapshot) {
-                              return Column(
-                                children: [
-                                  SliderProgress(
-                                    trackHeight: 4.h,
-                                    enabledThumbRadius: 6.r,
-                                    position: snapshot.data ?? Duration.zero,
-                                    duration: Duration(
-                                      milliseconds: current.duration ?? 0,
-                                    ),
-                                    onSeek: (duration) => player.seek(duration),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        _fmt(snapshot.data ?? Duration.zero),
-                                        style: TextStyles.headlineMedium
-                                            .copyWith(color: Colors.white),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        _fmt(
-                                          Duration(
-                                            milliseconds: current.duration ?? 0,
-                                          ),
-                                        ),
-                                        style: TextStyles.headlineMedium
-                                            .copyWith(color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+                          AddToFavoriteWidget(audioFile: current),
                         ],
                       ),
                     ),
-                  ),
 
-                  // 🔹 4. أزرار التحكم الكبيرة
-                  Expanded(
-                    flex: 1,
-                    child: BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
-                      builder: (context, state) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // -10s
-                            StreamBuilder<Duration>(
-                              stream: player.positionStream,
-                              builder: (context, snapshot) {
-                                return ControlIconWidget(
-                                  svgGenImage:
-                                      context.locale.languageCode != 'ar'
-                                          ? Assets.icons.backward10Second
-                                          : Assets.icons.forward10Seconds,
-                                  opacity: 0,
-
-                                  onPressed: () {
-                                    int a =
-                                        ((snapshot.data ?? Duration.zero) -
-                                                const Duration(seconds: 10))
-                                            .inSeconds;
-                                    if (a < 0) a = 0;
-                                    audioBloc.add(
-                                      SeekAudio(Duration(seconds: a)),
-                                    );
-                                  },
-                                );
-                              },
+                    // 🔹 2. Artwork / لوتى
+                    Expanded(
+                      flex: 4,
+                      child: StreamBuilder<bool>(
+                        stream: player.playingStream,
+                        initialData: player.playing,
+                        builder: (context, snapshot) {
+                          final isPlaying = snapshot.data ?? false;
+                          return Center(
+                            child: SizedBox(
+                              width: 0.9.sw,
+                              height: 0.9.sw,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // AudioArtworkWidget(
+                                  //   audio: current,
+                                  //   showNullWidget: false,
+                                  //   size: 0.9.sw,
+                                  //   borderRadius: 0.9.sw,
+                                  // ),
+                                  Lottie.asset(
+                                    globalLottiePath,
+                                    animate: isPlaying,
+                                    height: 0.9.sw,
+                                    width: 0.9.sw,
+                                  ),
+                                  AudioArtworkWidget(
+                                    audio: current,
+                                    size: 130.r,
+                                    showIconNullWidget: true,
+                                    borderRadius: 100.r,
+                                  ),
+                                ],
+                              ),
                             ),
-
-                            ControlIconWidget(
-                              rotate: context.locale.languageCode != 'ar',
-                              opacity: 0.8,
-                              svgGenImage: Assets.icons.next,
-                              onPressed: () => audioBloc.add(PreviousAudio()),
-                            ),
-
-                            StreamBuilder<bool>(
-                              stream: player.playingStream,
-                              initialData: player.playing,
-                              builder: (context, snapshot) {
-                                final isPlaying = snapshot.data ?? false;
-                                return ControlIconWidget(
-                                  onPressed: () {
-                                    if (isPlaying) {
-                                      audioBloc.add(PauseAudio());
-                                    } else {
-                                      audioBloc.add(ResumeAudio());
-                                    }
-                                  },
-                                  size: 65.sp,
-                                  opacity: 0.8,
-                                  svgGenImage:
-                                      isPlaying
-                                          ? Assets.icons.pause
-                                          : Assets.icons.play,
-                                );
-                              },
-                            ),
-                            ControlIconWidget(
-                              opacity: 0.8,
-                              svgGenImage: Assets.icons.next,
-                              rotate: context.locale.languageCode == 'ar',
-                              onPressed: () => audioBloc.add(NextAudio()),
-                            ),
-                            StreamBuilder<Duration>(
-                              stream: player.positionStream,
-                              builder: (context, snapshot) {
-                                return ControlIconWidget(
-                                  svgGenImage:
-                                      context.locale.languageCode == 'ar'
-                                          ? Assets.icons.backward10Second
-                                          : Assets.icons.forward10Seconds,
-                                  opacity: 0,
-
-                                  onPressed: () {
-                                    int a =
-                                        ((snapshot.data ?? Duration.zero) +
-                                                const Duration(seconds: 10))
-                                            .inSeconds;
-                                    if (a > (current.duration ?? 0)) {
-                                      a = (current.duration ?? 0);
-                                    }
-                                    audioBloc.add(
-                                      SeekAudio(Duration(seconds: a)),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
 
-                  // 🔹 5. سرعة + مود التشغيل + الانتظار
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    // 🔹 3. عنوان + ألبوم + Slider
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 0.06.sw, right: 0.06.sw),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SpeedDropdown(
-                              currentSpeed: audioBloc.state.speed,
-                              onChanged:
-                                  (value) =>
-                                      audioBloc.add(SetPlaybackSpeed(value)),
+                            AudioTitleMarquee(audioTitle: current.title),
+                            Text(
+                              current.album ?? '',
+                              style: TextStyles.displaySmall.copyWith(
+                                color: Colors.white70,
+                              ),
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
                             ),
-                            DropdownButton<PlaybackMode>(
-                              underline: const SizedBox.shrink(),
-                              dropdownColor: globalBackgroundColor,
-                              value: playbackMode,
-                              icon:
-                                  playbackMode == PlaybackMode.shuffle
-                                      ? Assets.icons.shuffle.svg(
-                                        color: Colors.white,
-                                        width: 30.sp,
-                                        height: 30.sp,
-                                      )
-                                      : playbackMode == PlaybackMode.repeatOne
-                                      ? Assets.icons.repeateOne.svg(
-                                        color: Colors.white,
-                                        width: 30.sp,
-                                        height: 30.sp,
-                                      )
-                                      : Assets.icons.repeate.svg(
-                                        color: Colors.white,
-                                        width: 30.sp,
-                                        height: 30.sp,
-                                      ),
-                              items:
-                                  PlaybackMode.values.map((type) {
-                                    String label;
-                                    switch (type) {
-                                      case PlaybackMode.repeatAll:
-                                        label = LocaleKeys.repeatAll.tr();
-                                        break;
-                                      case PlaybackMode.repeatOne:
-                                        label = LocaleKeys.repeatCurrent.tr();
-                                        break;
-                                      case PlaybackMode.shuffle:
-                                        label = LocaleKeys.shuffle.tr();
-                                        break;
-                                    }
-                                    return DropdownMenuItem<PlaybackMode>(
-                                      value: type,
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.only(
-                                          end: 3.w,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SizedBox(
+                                  width: 0.22.sw,
+                                  child: SpeedDropdown(
+                                    currentSpeed: audioBloc.state.speed,
+                                    onChanged:
+                                        (value) => audioBloc.add(
+                                          SetPlaybackSpeed(value),
                                         ),
-                                        child: Text(
-                                          label,
-                                          style: TextStyles.titleMedium
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 0.22.sw,
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                        child: ControlIconWidget(
+                                          svgGenImage: Assets.icons.equalizer,
+                                          size: 35.sp,
+                                          onPressed:
+                                              () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            EqualizerUi(),
+                                                  ),
+                                                ),
+                                              },
+                                        ),
+                                      ),
+                                      // Align(
+                                      //   alignment: Alignment.topRight,
+                                      //   child: Text(data),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                // Simple Equalizer Button - Opens Device Equalizer
+                                SizedBox(
+                                  width: 0.22.sw,
+                                  child: Center(
+                                    child: DropdownButton<PlaybackMode>(
+                                      underline: const SizedBox.shrink(),
+                                      dropdownColor: globalBackgroundColor,
+                                      value: playbackMode,
+                                      menuWidth: 0.30.sw,
+                                      selectedItemBuilder: (context) {
+                                        return PlaybackMode.values.map((type) {
+                                          switch (type) {
+                                            case PlaybackMode.shuffle:
+                                              return Assets.icons.shuffle.svg(
+                                                color: Colors.white,
+                                                width: 25.sp,
+                                                height: 25.sp,
+                                              );
+                                            case PlaybackMode.repeatOne:
+                                              return Assets.icons.repeateOne
+                                                  .svg(
+                                                    color: Colors.white,
+                                                    width: 25.sp,
+                                                    height: 25.sp,
+                                                  );
+                                            case PlaybackMode.repeatAll:
+                                              return Assets.icons.repeate.svg(
+                                                color: Colors.white,
+                                                width: 25.sp,
+                                                height: 25.sp,
+                                              );
+                                          }
+                                        }).toList();
+                                      },
+                                      icon: SizedBox.shrink(),
+                                      items:
+                                          PlaybackMode.values.map((type) {
+                                            String label;
+                                            switch (type) {
+                                              case PlaybackMode.repeatAll:
+                                                label =
+                                                    LocaleKeys.repeatAll.tr();
+                                                break;
+                                              case PlaybackMode.repeatOne:
+                                                label =
+                                                    LocaleKeys.repeatCurrent
+                                                        .tr();
+                                                break;
+                                              case PlaybackMode.shuffle:
+                                                label = LocaleKeys.shuffle.tr();
+                                                break;
+                                            }
+                                            return DropdownMenuItem<
+                                              PlaybackMode
+                                            >(
+                                              value: type,
+                                              child: Text(
+                                                label,
+                                                style: TextStyles.bodyLarge
+                                                    .copyWith(
+                                                      color: Colors.white,
+                                                    ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                      onChanged: (newPlaybackMode) {
+                                        playbackMode = newPlaybackMode!;
+                                        audioBloc.add(
+                                          TogglePlaybackMode(
+                                            playbackMode: newPlaybackMode,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 0.22.sw,
+                                  child: Align(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: InkWell(
+                                      child: Assets.icons.musicLibrary.svg(
+                                        color: Colors.white,
+
+                                        width: 25.sp,
+                                        height: 25.sp,
+                                      ),
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder:
+                                              (context) => AudiosBottomSheet(
+                                                initialIndex:
+                                                    audioBloc.currentIndex ?? 0,
+                                                audios:
+                                                    audioBloc.currentPlaylist,
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            StreamBuilder<Duration>(
+                              stream: player.positionStream,
+                              builder: (context, snapshot) {
+                                return Column(
+                                  children: [
+                                    SliderProgress(
+                                      trackHeight: 4.h,
+                                      enabledThumbRadius: 6.r,
+                                      position: snapshot.data ?? Duration.zero,
+                                      duration: Duration(
+                                        milliseconds: current.duration ?? 0,
+                                      ),
+                                      onSeek:
+                                          (duration) => player.seek(duration),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          _fmt(snapshot.data ?? Duration.zero),
+                                          style: TextStyles.headlineMedium
                                               .copyWith(color: Colors.white),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                              onChanged: (newPlaybackMode) {
-                                playbackMode = newPlaybackMode!;
-                                audioBloc.add(
-                                  TogglePlaybackMode(
-                                    playbackMode: newPlaybackMode,
-                                  ),
+                                        const Spacer(),
+                                        Text(
+                                          _fmt(
+                                            Duration(
+                                              milliseconds:
+                                                  current.duration ?? 0,
+                                            ),
+                                          ),
+                                          style: TextStyles.headlineMedium
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 );
                               },
                             ),
                           ],
                         ),
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: WaitingListWidget(audioBloc: audioBloc),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+
+                    // 🔹 4. أزرار التحكم الكبيرة
+                    Expanded(
+                      flex: 1,
+                      child: BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
+                        builder: (context, state) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // -10s
+                              StreamBuilder<Duration>(
+                                stream: player.positionStream,
+                                builder: (context, snapshot) {
+                                  return ControlIconWidget(
+                                    svgGenImage:
+                                        context.locale.languageCode != 'ar'
+                                            ? Assets.icons.backward10Second
+                                            : Assets.icons.forward10Seconds,
+                                    opacity: 0,
+                                    onPressed: () {
+                                      int a =
+                                          ((snapshot.data ?? Duration.zero) -
+                                                  const Duration(seconds: 10))
+                                              .inSeconds;
+                                      if (a < 0) a = 0;
+                                      audioBloc.add(
+                                        SeekAudio(Duration(seconds: a)),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+
+                              ControlIconWidget(
+                                rotate: context.locale.languageCode != 'ar',
+                                opacity: 0.8,
+                                svgGenImage: Assets.icons.next,
+                                onPressed: () => audioBloc.add(PreviousAudio()),
+                              ),
+
+                              StreamBuilder<bool>(
+                                stream: player.playingStream,
+                                initialData: player.playing,
+                                builder: (context, snapshot) {
+                                  final isPlaying = snapshot.data ?? false;
+                                  return ControlIconWidget(
+                                    onPressed: () {
+                                      if (isPlaying) {
+                                        audioBloc.add(PauseAudio());
+                                      } else {
+                                        audioBloc.add(ResumeAudio());
+                                      }
+                                    },
+                                    size: 65.sp,
+                                    opacity: 0.8,
+                                    svgGenImage:
+                                        isPlaying
+                                            ? Assets.icons.pause
+                                            : Assets.icons.play,
+                                  );
+                                },
+                              ),
+                              ControlIconWidget(
+                                opacity: 0.8,
+                                svgGenImage: Assets.icons.next,
+                                rotate: context.locale.languageCode == 'ar',
+                                onPressed: () => audioBloc.add(NextAudio()),
+                              ),
+                              StreamBuilder<Duration>(
+                                stream: player.positionStream,
+                                builder: (context, snapshot) {
+                                  return ControlIconWidget(
+                                    svgGenImage:
+                                        context.locale.languageCode == 'ar'
+                                            ? Assets.icons.backward10Second
+                                            : Assets.icons.forward10Seconds,
+                                    opacity: 0,
+                                    onPressed: () {
+                                      int a =
+                                          ((snapshot.data ?? Duration.zero) +
+                                                  const Duration(seconds: 10))
+                                              .inSeconds;
+                                      if (a > (current.duration ?? 0)) {
+                                        a = (current.duration ?? 0);
+                                      }
+                                      audioBloc.add(
+                                        SeekAudio(Duration(seconds: a)),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //   children: [WaitingListWidget(audioBloc: audioBloc)],
+                    // ),
+                    // 🔹 5. سرعة + مود التشغيل + الانتظار
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
