@@ -71,7 +71,9 @@ class AudioPlayerHandler extends BaseAudioHandler
 
       // Just Audio: the tag of the currently playing AudioSource holds the MediaItem
       final currentSource = _player.sequence?[currentIndex];
-      if (currentSource == null) return;
+      if (currentSource == null) {
+        return;
+      }
 
       final currentMediaItem = currentSource.tag as MediaItem;
 
@@ -93,6 +95,13 @@ class AudioPlayerHandler extends BaseAudioHandler
     bool autoRun = true,
     int? initIndex,
   }) async {
+    if (audios.isEmpty) return;
+
+    // 1️⃣ Stop current playback and clear previous queue
+    await _player.stop();
+    await _player.seek(Duration.zero);
+    queue.add([]); // Clear audio_service queue
+
     final items = <MediaItem>[];
     final sources = <AudioSource>[];
 
@@ -103,7 +112,7 @@ class AudioPlayerHandler extends BaseAudioHandler
         if (index != -1) {
           uri = Uri.file(artworks[index].artworkFilePath ?? placeArtwork);
         }
-        //final artworkUri = await _getArtworkUri(a.id);
+
         final mediaItem = MediaItem(
           id: a.id.toString(),
           title: a.title,
@@ -115,9 +124,8 @@ class AudioPlayerHandler extends BaseAudioHandler
         );
         items.add(mediaItem);
 
-        if (a.uri == null || a.uri!.isEmpty) {
-          throw Exception('Audio URI is null or empty for id: ${a.id}');
-        }
+        if (a.uri == null || a.uri!.isEmpty) continue;
+
         final audioSource = AudioSource.uri(Uri.parse(a.uri!), tag: mediaItem);
         sources.add(audioSource);
       } catch (e) {
@@ -126,28 +134,42 @@ class AudioPlayerHandler extends BaseAudioHandler
       }
     }
 
-    if (items.isEmpty || sources.isEmpty) {
-      return;
-    }
+    if (sources.isEmpty) return;
 
+    // 2️⃣ Update the queue (for AudioService notifications)
     queue.add(items);
 
+    // 3️⃣ Build and load new concatenating source
     try {
-      await _player.setAudioSource(
-        ConcatenatingAudioSource(children: sources),
-        initialIndex: initIndex,
-      );
+      final newSource = ConcatenatingAudioSource(children: sources);
+      await _player.setAudioSource(newSource, initialIndex: initIndex);
     } catch (e) {
       print('Error setting audio source: $e');
       return;
     }
 
+    // 4️⃣ Reset internal state to match new queue
+    playbackState.add(
+      playbackState.value.copyWith(
+        queueIndex: initIndex ?? 0,
+        updatePosition: Duration.zero,
+      ),
+    );
+
+    // 5️⃣ Auto-play if requested
     if (autoRun) {
       try {
-        play();
+        await _player.play();
       } catch (e) {
-        print('Error playing: $e');
+        print('Error starting playback: $e');
       }
+    }
+
+    // 6️⃣ Force media item update for notification
+    if (initIndex != null && items.isNotEmpty) {
+      mediaItem.add(items[initIndex]);
+    } else if (items.isNotEmpty) {
+      mediaItem.add(items.first);
     }
   }
 

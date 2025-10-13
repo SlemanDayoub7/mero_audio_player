@@ -54,20 +54,22 @@ List<AudioFile> _fulltempAudios = [];
 int? _savedIndex;
 
 class Injection {
+  static late final AudioPlayerHandler audioHandler;
   static Future<void> init() async {
+    placeArtwork =
+        await ArtworkUtils.loadAssetAsFile(Assets.images.logo.path) ?? '';
     await _initAudioService();
     await _initHiveBoxes();
     _fetchSavedOptions();
     _initRepositories();
     _initUsecases();
     _initEqualizer();
-    placeArtwork =
-        await ArtworkUtils.loadAssetAsFile(Assets.images.logo.path) ?? '';
+
     await _fetchLastPlayedAudio();
   }
 
   static Future<void> _initAudioService() async {
-    final handler = await AudioService.init(
+    audioHandler = await AudioService.init(
       builder: () => AudioPlayerHandler(),
       config: AudioServiceConfig(
         androidNotificationChannelId: AppConstants.androidNotificationChannelId,
@@ -76,8 +78,19 @@ class Injection {
         androidStopForegroundOnPause: AppConstants.androidStopForegroundOnPause,
       ),
     );
-    sl.registerSingleton<AudioPlayerHandler>(handler);
   }
+  // static Future<void> _initAudioService() async {
+  //   final handler = await AudioService.init(
+  //     builder: () => AudioPlayerHandler(),
+  //     config: AudioServiceConfig(
+  //       androidNotificationChannelId: AppConstants.androidNotificationChannelId,
+  //       androidNotificationChannelName:
+  //           AppConstants.androidNotificationChannelName,
+  //       androidStopForegroundOnPause: AppConstants.androidStopForegroundOnPause,
+  //     ),
+  //   );
+  //   sl.registerSingleton<AudioPlayerHandler>(handler);
+  // }
 
   static Future<void> _initHiveBoxes() async {
     Hive.registerAdapter(ChapterAdapter());
@@ -103,6 +116,7 @@ class Injection {
     sl.registerLazySingleton(() => GetAudioFiles(sl()));
     sl.registerLazySingleton(() => SortAudioFiles());
     sl.registerLazySingleton(() => SearchAudioFiles(sl()));
+    // Album-related
     sl.registerLazySingleton(() => FetchAlbums(sl()));
     sl.registerLazySingleton(() => FetchSongsByAlbum(sl()));
     sl.registerLazySingleton(() => SearchAlbums());
@@ -152,7 +166,7 @@ class Injection {
   static Future<void> _fetchLastPlayedAudio() async {
     final audioRepository = sl<AudioRepository>();
     final playlistRepository = sl<PlaylistRepository>();
-    final audioHandler = sl<AudioPlayerHandler>();
+    // final audioHandler = sl<AudioPlayerHandler>();
 
     _fulltempAudios = await audioRepository.fetchAudioFiles();
     try {
@@ -228,7 +242,7 @@ class Injection {
     BlocProvider<AudioPlayerBloc>(
       create:
           (_) => AudioPlayerBloc(
-            playerHandler: sl(),
+            playerHandler: audioHandler,
             playlistRepository: sl(),
             audioRepository: sl(),
             initialPlaylist: _tempAudios,

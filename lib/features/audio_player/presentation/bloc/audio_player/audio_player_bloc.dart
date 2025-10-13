@@ -168,62 +168,6 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
     } else {
       _box = Hive.box(_boxName);
     }
-    // try {
-    //   final Map<String, dynamic>? storedMap =
-    //       _box.get('lastPlayed')?.cast<String, dynamic>();
-    //   if (storedMap == null) {
-    //     return;
-    //   }
-
-    //   RecentlyPlayedAudio audio = RecentlyPlayedAudio.fromMap(storedMap);
-
-    //   // Implement your check here to verify if audio exists on device, e.g.:
-    //   final exists = await _checkIfAudioExists(audio.id);
-    //   if (!exists) {
-    //     await _box.delete('lastPlayed');
-    //     return;
-    //   }
-    //   List<AudioFile> audios = [];
-    //   switch (audio.source) {
-    //     case PlaySource.artist:
-    //       audios = await audioRepository.fetchSongsByArtist(audio.artist);
-    //       break;
-    //     case PlaySource.audioList:
-    //       audios = await audioRepository.fetchAudioFiles();
-    //       break;
-    //     case PlaySource.playlist:
-    //       List<Playlist> playLists = await playlistRepository.getAllPlaylists();
-
-    //       break;
-    //   }
-    //   currentPlaylist = audios;
-    //   print(audio.id);
-    //   int ind = 0;
-    //   for (AudioFile i in audios) {
-    //     if (i.id.toString() == audio.id) {
-    //       currentIndex = ind;
-    //       break;
-    //     }
-    //     ind++;
-    //   }
-    //   print(ind);
-    //   await playerHandler.setPlaylist(audios, autoRun: false);
-    //   if (currentIndex != null) {
-    //     await playerHandler.player.seek(Duration.zero, index: currentIndex);
-    //     // Optionally emit state for that audio:
-    //     final mediaItem = playerHandler.queue.value[currentIndex!];
-    //     final audio = AudioFile(
-    //       id: int.parse(mediaItem.id),
-    //       title: mediaItem.title,
-    //       artist: mediaItem.artist,
-    //       album: mediaItem.album,
-    //       uri: mediaItem.extras?['uri'],
-    //       duration: mediaItem.duration?.inMilliseconds,
-    //     );
-    //     add(_InternalAudioChanged(audio)); // so UI updates immediately
-    //   }
-    //   ;
-    // } catch (e) {}
   }
 
   void _emitCurrentFromPlayer(Emitter<AudioPlayerState> emit) async {
@@ -248,6 +192,7 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
     EqualizerFlutter.release();
     EqualizerFlutter.setEnabled(false);
     EqualizerFlutter.removeAudioSessionId(0);
+
     return super.close();
   }
 }

@@ -49,7 +49,7 @@ class AudioWidget extends StatelessWidget {
       onTap:
           onTap ??
           () {
-            print(audio.albumId);
+            print(audios?.length);
             playSource = playSourceL;
             context.read<AudioPlayerBloc>().add(
               audios!.isEmpty

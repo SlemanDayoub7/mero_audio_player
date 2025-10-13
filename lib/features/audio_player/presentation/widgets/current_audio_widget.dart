@@ -1,7 +1,9 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
@@ -133,7 +135,14 @@ class _CurrentAudioWidgetState extends State<CurrentAudioWidget> {
                             if (isPlaying) {
                               audioBloc.add(PauseAudio());
                             } else {
+                              //  if(player.pl==PlayerState.)
                               audioBloc.add(ResumeAudio());
+                              // audioBloc.add(
+                              //   PlayAudio(
+                              //     audio: current,
+                              //     audios: audioBloc.currentPlaylist,
+                              //   ),
+                              // );
                             }
                           },
                         );
