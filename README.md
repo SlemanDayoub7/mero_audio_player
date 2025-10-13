@@ -14,12 +14,17 @@ A showcase of advanced Flutter development, clean architecture, and native Andro
 
 ## 📸 App Preview
 <p align="center">
-  ![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)
-  
-  ![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)
-  
-  ![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)
+  <img src="screenshots/1.jpg" alt="Screenshot 1" width="30%">
+  <img src="screenshots/2.jpg" alt="Screenshot 2" width="30%">
+  <img src="screenshots/3.jpg" alt="Screenshot 3" width="30%">
 </p>
+
+<p align="center">
+  <img src="screenshots/4.jpg" alt="Screenshot 4" width="30%">
+  <img src="screenshots/5.jpg" alt="Screenshot 5" width="30%">
+  <img src="screenshots/7.jpg" alt="Screenshot 6" width="30%">
+</p>
+
 ---
 
 ## 📥 Download Now
@@ -176,6 +181,7 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
