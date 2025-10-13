@@ -14,56 +14,68 @@ A showcase of advanced Flutter development, clean architecture, and native Andro
 
 ## 📸 App Preview
 <p align="center">
-  <img src="![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)" alt="Screenshot 1" width="30%">
-  <img src="![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)" alt="Screenshot 2" width="30%">
-  <img src="![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)" alt="Screenshot 3" width="30%">
+  ![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)
+  
+  ![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)
+  
+  ![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)
 </p>
 
-![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)
-![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)
-![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)
 
-🚀 Features
-🎵 Core Experience
-Offline-First Music Library: Instantly play all your local audio files — no internet required.
+## 🚀 Features
+-**Offline-First Music Library**:
+Instantly play all your local audio files — no internet required.
 
-Smart Organization: Browse your music by songs, artists, albums, or folders.
+-**Smart Organization**:
+Browse your music by songs, artists, albums, or folders.
 
-Advanced Playback: Create smart playlists and mark your favorite songs for quick access.
+-**Advanced Playback**:
+Create smart playlists and mark your favorite songs for quick access.
 
-Background Playback: Seamless listening with full notification controls and song artwork on the lock screen.
+-**Background Playback**:
+Seamless listening with full notification controls and song artwork on the lock screen.
 
-🛠️ Powerful Tools
-Built-in Equalizer: Fine-tune your music with a powerful multi-band equalizer.
+## 🛠️ Powerful Tools
+-**Built-in Equalizer**:
+Fine-tune your music with a powerful multi-band equalizer.
 
-Audio Trimmer & Ringtone Set: Cut any part of a song and set it as your phone's ringtone directly from the app.
+-**Audio Trimmer & Ringtone Set**:
+Cut any part of a song and set it as your phone's ringtone directly from the app.
 
-Global Search & Sort: Find music quickly with search and sort by title, artist, album, duration, size, or date added.
+-**Global Search & Sort**:
+Find music quickly with search and sort by title, artist, album, duration, size, or date added.
 
-🎨 Customization
-Visual Appeal: Beautiful, adaptive themes and custom wallpapers to personalize the player's look and feel.
+## 🎨 Customization
+-**Visual Appeal**:
+Beautiful, adaptive themes and custom wallpapers to personalize the player's look and feel.
 
-Internationalization: Support for 40+ languages, providing a native experience for users worldwide.
+-**Internationalization**:
+Support for 40 languages, providing a native experience for users worldwide.
 
-🏗️ Technical Architecture
+## 🏗️ Technical Architecture
 This project is built to demonstrate professional, scalable Flutter development practices.
+### Clean Architecture & State Management
+-**🔄 BLoC Pattern**:
+The app uses flutter_bloc for predictable, testable, and manageable state management. All events and states are built with equatable for efficient comparison.
 
-Clean Architecture & State Management
-🔄 BLoC Pattern: The app uses flutter_bloc for predictable, testable, and manageable state management. All events and states are built with equatable for efficient comparison.
+-**🧩 Clean Architecture**:
+The codebase is structured into distinct layers (Presentation, Domain, Data) to ensure separation of concerns, testability, and maintainability.
 
-🧩 Clean Architecture: The codebase is structured into distinct layers (Presentation, Domain, Data) to ensure separation of concerns, testability, and maintainability.
+-**💉 Dependency Injection**:
+get_it is used for managing dependencies in a clean and decoupled manner.
 
-💉 Dependency Injection: get_it is used for managing dependencies in a clean and decoupled manner.
+### Persistence & Data**
+-**🗄️ Local Database**:
+Hive is used for fast, lightweight local storage (e.g., favorites, playlists, app settings).
 
-Persistence & Data
-🗄️ Local Database: Hive is used for fast, lightweight local storage (e.g., favorites, playlists, app settings).
+-**📁 File & Path Handling**:
+path_provider and media_store_plus are used for robust access to the device's file system and media library.
 
-📁 File & Path Handling: path_provider and media_store_plus are used for robust access to the device's file system and media library.
+### Audio Engine
+-**🎧 Core Playback**:
+Powered by just_audio and audio_service for robust, background-capable audio playback that integrates with the system.
 
-Audio Engine
-🎧 Core Playback: Powered by just_audio and audio_service for robust, background-capable audio playback that integrates with the system.
-
-🔊 Advanced Audio Features:
+-**🔊 Advanced Audio Features**:
 
 equalizer_flutter for system-level equalizer controls.
 
@@ -71,105 +83,89 @@ just_audio_background for configuring the Android notification.
 
 on_audio_query to efficiently fetch metadata from the device's media store.
 
-🎼 Audio Manipulation: Custom Method Channels are implemented to access native Android code for audio trimming and interacting with system settings.
+-**🎼 Audio Manipulation**:
+Custom Method Channels are implemented to access native Android code for audio trimming and interacting with system settings.
 
-UI/UX
-📐 Responsive Design: flutter_screenutil is used to create a consistent UI across different screen sizes and densities.
+### UI/UX
+-**📐 Responsive Design**:
+flutter_screenutil is used to create a consistent UI across different screen sizes and densities.
 
-🎭 Rich Animations: lottie for smooth, beautiful animations.
+-**🎭 Rich Animations**:
+lottie for smooth, beautiful animations.
 
-🖼️ Vector Graphics: flutter_svg for crisp, scalable icons and graphics.
+-**🖼️ Vector Graphics**:
+flutter_svg for crisp, scalable icons and graphics.
 
-📜 Scrolling Text: marquee for long song titles that scroll automatically.
+-**📜 Scrolling Text**:
+marquee for long song titles that scroll automatically.
 
-📱 Native Feel: cupertino_icons and Material Design are used to provide a familiar experience.
+-**📱 Native Feel**:
+cupertino_icons and Material Design are used to provide a familiar experience.
 
-Other Key Plugins
-permission_handler: Manages runtime permissions gracefully.
+### Other Key Plugins
+-**permission_handler**:
+Manages runtime permissions gracefully.
 
-share_plus: Allows sharing songs and app content.
+-**share_plus**:
+Allows sharing songs and app content.
 
-ringtone_set_plus: Handles the system-level process of setting a ringtone.
+-**ringtone_set_plus**:
+Handles the system-level process of setting a ringtone.
 
-easy_localization: Manages the 40+ language supports efficiently.
+-**easy_localization**:
+Manages the 40+ language supports efficiently.
 
-url_launcher: For opening links (e.g., privacy policy).
+-**url_launcher**:
+For opening links.
 
-📁 Project Structure (Clean Architecture)
-text
-lib/
-├── core/
-│   ├── constants/
-│   ├── errors/
-│   ├── usecases/
-│   ├── utils/
-│   └── widgets/
-├── features/
-│   ├── audio_player/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   ├── music_library/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   ├── equalizer/
-│   ├── ringtone_cutter/
-│   └── settings/
-└── injection_container.dart
-🔧 Installation & Setup
-Prerequisites
-Flutter SDK (version 3.0 or higher)
 
-Android Studio / VS Code
+## 🔧 Installation & Setup
+### Prerequisites
+- Flutter SDK
+- Device or emulator for testing
+- Android Studio / VS Code
 
-An Android device/emulator with SDK 21+
-
-Steps
-Clone the repository
-
-bash
-git clone https://github.com/your-username/mero_audio_player.git
+### Steps
+#### Clone the repository
+```bash
+git clone https://github.com/SlemanDayoub7/mero_audio_player.git
 cd mero_audio_player
-Get dependencies
-
-bash
+```
+#### Get dependencies
+```bash
 flutter pub get
-Generate necessary files
-(Run these commands if you have code generation set up for Hive or flutter_gen)
-
-bash
+```
+#### Generate necessary files
+```bash
 flutter packages pub run build_runner build --delete-conflicting-outputs
-flutter gen-l10n # If you're using ARB files for localization
-Run the app
-
-bash
+```
+```bash
+flutter pub run easy_localization:generate -S assets/locales -O lib/generated -f keys
+```
+#### Run the app
+```bash
 flutter run
-🛠️ Building for Release
+```
+#### 🛠️ Building for Release
 To build an APK for distribution:
-
-bash
-flutter build apk --release
-🤝 Contributing
+```bash
+flutter build apk --release 
+--split-per-abi
+```
+# **🤝 Contributing**:
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
 
-📄 License
-This project is licensed under the MIT License.
+# **📄 License**:
+This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
-👨‍💻 Developer
-Sleman Dayoub
-
-GitHub: @your-username
-
-LinkedIn: Your LinkedIn Profile
-![Screenshot_٢٠٢٥-١٠-٠٤-١٤-٠٥-٣٥-٦٢١_com example mero_audio_player](https://github.com/user-attachments/assets/fa2a986f-a960-40a6-8866-d1edf7de44ff)
-
-Portfolio: Your Portfolio Website![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٨-٢٧-٩٤٤_com example mero_audio_player](https://github.com/user-attachments/assets/2f8300ad-04e1-4104-acc6-ab5d245e9b56)
-
+# **👨‍💻 Developer**:
+- Sleman Dayoub
+- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/sleman-dayoub-6b95a6284/)
 
 <div align="center">![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٦-٠٢-٤٥٩_com example mero_audio_player](https://github.com/user-attachments/assets/f5879ae1-6db5-46a0-9af8-fc22913fb1ff)
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
