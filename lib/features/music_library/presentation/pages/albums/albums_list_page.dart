@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
 import 'package:mero_audio_player/core/widgets/app_no_data_text.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
 import 'package:mero_audio_player/features/music_library/presentation/bloc/album_list/album_list_bloc.dart';
 import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/features/music_library/presentation/pages/albums/album_detail_page.dart';
@@ -70,10 +72,12 @@ class _AlbumsListPageState extends State<AlbumsListPage> {
                                   (_) => BlocProvider<AlbumListBloc>(
                                     create:
                                         (context) => AlbumListBloc(
-                                          repository: Injection.audioRepository,
+                                          searchAlbums: sl(),
+                                          fetchAlbums: sl(),
+                                          fetchSongsByAlbum: sl(),
                                         )..add(
-                                          FetchSongsByAlbum(
-                                            AlbumName: album.album,
+                                          FetchSongsByAlbumEvent(
+                                            albumName: album.album,
                                           ),
                                         ),
                                     child: AlbumDetailPage(album: album),

@@ -3,6 +3,7 @@ import 'package:equalizer_flutter/equalizer_flutter.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
+
 import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played/recently_played_event.dart';
 import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
 import 'package:mero_audio_player/features/playlist/domain/repositories/playlists_repository.dart';

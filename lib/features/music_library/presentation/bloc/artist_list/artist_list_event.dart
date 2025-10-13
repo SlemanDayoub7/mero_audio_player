@@ -15,9 +15,9 @@ class SearchArtist extends ArtistListEvent {
   List<Object> get props => [query];
 }
 
-class FetchSongsByArtist extends ArtistListEvent {
+class FetchSongsByArtistEvent extends ArtistListEvent {
   final String artistName;
-  const FetchSongsByArtist({required this.artistName});
+  const FetchSongsByArtistEvent({required this.artistName});
   @override
   List<Object> get props => [artistName];
 }

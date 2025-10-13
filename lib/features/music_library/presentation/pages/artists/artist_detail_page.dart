@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
@@ -107,7 +108,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
                               isSelected: selected.contains(song),
                               onDelete: () {
                                 context.read<ArtistListBloc>().add(
-                                  FetchSongsByArtist(
+                                  FetchSongsByArtistEvent(
                                     artistName: song.artist ?? '',
                                   ),
                                 );

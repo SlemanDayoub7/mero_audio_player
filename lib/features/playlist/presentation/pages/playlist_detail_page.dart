@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';

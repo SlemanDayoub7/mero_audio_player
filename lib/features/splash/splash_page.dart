@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';

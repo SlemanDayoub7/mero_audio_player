@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_dialog.dart';
@@ -11,6 +12,10 @@ import 'package:mero_audio_player/core/widgets/app_no_data_text.dart';
 import 'package:mero_audio_player/core/widgets/generic_app_bar.dart';
 import 'package:mero_audio_player/core/widgets/generic_scaffold.dart';
 import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/get_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/search_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/sort_audio_files.dart';
 import 'package:mero_audio_player/features/music_library/presentation/bloc/audio_list/audio_list_bloc.dart';
 import 'package:mero_audio_player/features/playlist/presentation/bloc/playlist_bloc.dart';
 import 'package:mero_audio_player/features/playlist/presentation/pages/create_playlist_page.dart';
@@ -196,10 +201,10 @@ class CreatePlaylistIcon extends StatelessWidget {
                 (context) => BlocProvider(
                   create:
                       (context) => AudioListBloc(
-                        repository: Injection.audioRepository,
-                        getAudioFiles: Injection.getAudioFilesUsecase,
-                        sortAudioFiles: Injection.sortAudioFilesUsecase,
-                        searchAudioFiles: Injection.searchAudioFilesUsecase,
+                        repository: sl(),
+                        getAudioFiles: sl(),
+                        sortAudioFiles: sl(),
+                        searchAudioFiles: sl(),
                       )..add(FetchAudioList()),
                   child: CreatePlaylistPage(),
                 ),

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_circular_progress_indicator.dart';
 import 'package:mero_audio_player/core/widgets/app_error_text.dart';
 import 'package:mero_audio_player/core/widgets/app_no_data_text.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
 import 'package:mero_audio_player/features/music_library/presentation/bloc/artist_list/artist_list_bloc.dart';
 import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/features/music_library/presentation/pages/artists/artist_detail_page.dart';
@@ -170,11 +172,12 @@ class _ArtistListPageState extends State<ArtistListPage> {
                                                           (
                                                             context,
                                                           ) => ArtistListBloc(
-                                                            repository:
-                                                                Injection
-                                                                    .audioRepository,
+                                                            searchArtists: sl(),
+                                                            fetchArtists: sl(),
+                                                            fetchSongsByArtist:
+                                                                sl(),
                                                           )..add(
-                                                            FetchSongsByArtist(
+                                                            FetchSongsByArtistEvent(
                                                               artistName:
                                                                   artist.artist,
                                                             ),

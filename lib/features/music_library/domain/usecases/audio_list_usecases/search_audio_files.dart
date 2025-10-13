@@ -1,6 +1,9 @@
 import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
 
 class SearchAudioFiles {
+  SearchAudioFiles(AudioRepository audioRepository);
+
   List<AudioFile> call({
     required List<AudioFile> audios,
     required String query,

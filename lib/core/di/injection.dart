@@ -4,35 +4,45 @@ import 'package:audio_service/audio_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equalizer_flutter/equalizer_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/constants/hive_boxes.dart';
 import 'package:mero_audio_player/core/localization/locale_cubit.dart';
+import 'package:mero_audio_player/core/services/audio_handler.dart';
 import 'package:mero_audio_player/core/utils/artwork_utils.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/get_audio_files.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/search_audio_files.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/sort_audio_files.dart';
-import 'package:mero_audio_player/features/playlist/data/repositories/playlist_repository_impl.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played/recently_played_event.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
 import 'package:mero_audio_player/features/music_library/data/repositories/audio_repository_impl.dart';
 import 'package:mero_audio_player/features/music_library/domain/entities/artwork/artwork.dart';
 import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
-import 'package:mero_audio_player/features/playlist/domain/entities/playlist/playlist.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played/recently_played_event.dart';
-import 'package:mero_audio_player/features/playlist/domain/repositories/playlists_repository.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/album_list_usecases/fetch_albums.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/album_list_usecases/fetch_songs_by_album.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/album_list_usecases/search_albums.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/artist_list_usecases/fetch_artists.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/artist_list_usecases/fetch_songs_by_artist.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/artist_list_usecases/search_artists.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/get_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/search_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/sort_audio_files.dart';
 import 'package:mero_audio_player/features/music_library/presentation/bloc/album_list/album_list_bloc.dart';
 import 'package:mero_audio_player/features/music_library/presentation/bloc/artist_list/artist_list_bloc.dart';
+import 'package:mero_audio_player/features/music_library/presentation/bloc/audio_list/audio_list_bloc.dart';
+import 'package:mero_audio_player/features/playlist/data/repositories/playlist_repository_impl.dart';
+import 'package:mero_audio_player/features/playlist/domain/entities/chapter/chapter.dart';
+import 'package:mero_audio_player/features/playlist/domain/entities/playlist/playlist.dart';
+import 'package:mero_audio_player/features/playlist/domain/repositories/playlists_repository.dart';
 import 'package:mero_audio_player/features/playlist/presentation/bloc/playlist_bloc.dart';
 import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
-import 'package:mero_audio_player/core/services/audio_handler.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import '../../features/playlist/domain/entities/chapter/chapter.dart';
-import '../../features/music_library/domain/repositories/audio_repository.dart';
-import '../../features/music_library/presentation/bloc/audio_list/audio_list_bloc.dart';
-import '../../features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
 
+// 🧠 Global service locator
+final sl = GetIt.instance;
+
+// 🔁 Previously global variables (unchanged)
 SongSortType? selectedSort;
 OrderType orderType = OrderType.ASC_OR_SMALLER;
 PlaybackMode? playbackMode = PlaybackMode.repeatAll;
@@ -44,62 +54,20 @@ List<AudioFile> _fulltempAudios = [];
 int? _savedIndex;
 
 class Injection {
-  static late final AudioRepository audioRepository;
-  static late final AudioPlayerHandler audioHandler;
-  static late final PlaylistRepository playlistRepository;
-  static late final GetAudioFiles getAudioFilesUsecase;
-  static late final SortAudioFiles sortAudioFilesUsecase;
-  static late final SearchAudioFiles searchAudioFilesUsecase;
   static Future<void> init() async {
-    await initAudioService();
-    await initHiveBoxes();
-    fetchSavedOptions();
-    initRepositories();
-    initEqualizer();
+    await _initAudioService();
+    await _initHiveBoxes();
+    _fetchSavedOptions();
+    _initRepositories();
+    _initUsecases();
+    _initEqualizer();
     placeArtwork =
         await ArtworkUtils.loadAssetAsFile(Assets.images.logo.path) ?? '';
-    await fetchLastPlayedAudio();
+    await _fetchLastPlayedAudio();
   }
 
-  static void initRepositories() {
-    audioRepository = AudioRepositoryImpl();
-    playlistRepository = PlaylistRepositoryImpl();
-  }
-
-  static void initEqualizer() {
-    EqualizerFlutter.init(0);
-    EqualizerFlutter.setEnabled(false);
-  }
-
-  static void fetchSavedOptions() {
-    final savedIndexSortType = Hive.box(
-      HiveBoxes.settings,
-    ).get(HiveBoxes.sortType, defaultValue: 0);
-    final savedIndexOrderType = Hive.box(
-      HiveBoxes.settings,
-    ).get(HiveBoxes.orderType, defaultValue: 0);
-
-    selectedSort = SongSortType.values[savedIndexSortType];
-    orderType = OrderType.values[savedIndexOrderType];
-    Box backgroundBox = Hive.box(backgroundBoxName);
-    int? savedColorValue = backgroundBox.get(backgroundColorKey);
-    String? savedImage = backgroundBox.get(backgroundImageKey);
-    String? savedLottie = backgroundBox.get(lottieKey);
-    if (savedLottie != null) globalLottiePath = savedLottie;
-    if (savedColorValue != null) {
-      globalBackgroundColor = Color(savedColorValue);
-    } else {
-      globalBackgroundColor = Color(0xFF121212);
-    }
-    if (savedImage != null && savedImage.isNotEmpty) {
-      globalBackgroundImagePath = savedImage;
-    } else {
-      globalBackgroundImagePath = Assets.images.mate.path;
-    }
-  }
-
-  static Future<void> initAudioService() async {
-    audioHandler = await AudioService.init(
+  static Future<void> _initAudioService() async {
+    final handler = await AudioService.init(
       builder: () => AudioPlayerHandler(),
       config: AudioServiceConfig(
         androidNotificationChannelId: AppConstants.androidNotificationChannelId,
@@ -108,16 +76,15 @@ class Injection {
         androidStopForegroundOnPause: AppConstants.androidStopForegroundOnPause,
       ),
     );
+    sl.registerSingleton<AudioPlayerHandler>(handler);
   }
 
-  static Future<void> initHiveBoxes() async {
-    // Register adapters BEFORE opening boxes
+  static Future<void> _initHiveBoxes() async {
     Hive.registerAdapter(ChapterAdapter());
     Hive.registerAdapter(PlaylistAdapter());
     Hive.registerAdapter(AudioFileAdapter());
     Hive.registerAdapter(ArtworkAdapter());
 
-    // Open Hive boxes
     await Hive.openBox<Playlist>(HiveBoxes.playlists);
     await Hive.openBox(HiveBoxes.background);
     await Hive.openBox(HiveBoxes.sortType);
@@ -125,7 +92,68 @@ class Injection {
     await Hive.openBox<Artwork>(HiveBoxes.artworks);
   }
 
-  static Future<void> fetchLastPlayedAudio() async {
+  static void _initRepositories() {
+    sl.registerLazySingleton<AudioRepository>(() => AudioRepositoryImpl());
+    sl.registerLazySingleton<PlaylistRepository>(
+      () => PlaylistRepositoryImpl(),
+    );
+  }
+
+  static void _initUsecases() {
+    sl.registerLazySingleton(() => GetAudioFiles(sl()));
+    sl.registerLazySingleton(() => SortAudioFiles());
+    sl.registerLazySingleton(() => SearchAudioFiles(sl()));
+    sl.registerLazySingleton(() => FetchAlbums(sl()));
+    sl.registerLazySingleton(() => FetchSongsByAlbum(sl()));
+    sl.registerLazySingleton(() => SearchAlbums());
+    // Artist-related
+    sl.registerLazySingleton(() => FetchArtists(sl()));
+    sl.registerLazySingleton(() => FetchSongsByArtist(sl()));
+    sl.registerLazySingleton(() => SearchArtists());
+  }
+
+  static void _initEqualizer() {
+    EqualizerFlutter.init(0);
+    EqualizerFlutter.setEnabled(false);
+  }
+
+  static void _fetchSavedOptions() {
+    final settingsBox = Hive.box(HiveBoxes.settings);
+    final savedIndexSortType = settingsBox.get(
+      HiveBoxes.sortType,
+      defaultValue: 0,
+    );
+    final savedIndexOrderType = settingsBox.get(
+      HiveBoxes.orderType,
+      defaultValue: 0,
+    );
+
+    selectedSort = SongSortType.values[savedIndexSortType];
+    orderType = OrderType.values[savedIndexOrderType];
+
+    final backgroundBox = Hive.box(backgroundBoxName);
+    int? savedColorValue = backgroundBox.get(backgroundColorKey);
+    String? savedImage = backgroundBox.get(backgroundImageKey);
+    String? savedLottie = backgroundBox.get(lottieKey);
+
+    if (savedLottie != null) globalLottiePath = savedLottie;
+    if (savedColorValue != null) {
+      globalBackgroundColor = Color(savedColorValue);
+    } else {
+      globalBackgroundColor = const Color(0xFF121212);
+    }
+    if (savedImage != null && savedImage.isNotEmpty) {
+      globalBackgroundImagePath = savedImage;
+    } else {
+      globalBackgroundImagePath = Assets.images.mate.path;
+    }
+  }
+
+  static Future<void> _fetchLastPlayedAudio() async {
+    final audioRepository = sl<AudioRepository>();
+    final playlistRepository = sl<PlaylistRepository>();
+    final audioHandler = sl<AudioPlayerHandler>();
+
     _fulltempAudios = await audioRepository.fetchAudioFiles();
     try {
       final box = await Hive.openBox(HiveBoxes.recentlyPlayed);
@@ -183,7 +211,7 @@ class Injection {
     }
   }
 
-  /// Bloc providers for MultiBlocProvider
+  /// Bloc providers (same logic)
   static List<BlocProvider> getProviders(BuildContext context) => [
     BlocProvider<LocaleCubit>(
       create: (_) => LocaleCubit(context.savedLocale ?? context.locale),
@@ -191,38 +219,40 @@ class Injection {
     BlocProvider<AudioListBloc>(
       create:
           (_) => AudioListBloc(
-            repository: audioRepository,
-            getAudioFiles: getAudioFilesUsecase,
-            sortAudioFiles: sortAudioFilesUsecase,
-            searchAudioFiles: searchAudioFilesUsecase,
+            repository: sl(),
+            getAudioFiles: sl(),
+            sortAudioFiles: sl(),
+            searchAudioFiles: sl(),
           )..add(LoadAudioList(_fulltempAudios)),
     ),
     BlocProvider<AudioPlayerBloc>(
       create:
           (_) => AudioPlayerBloc(
-            playerHandler: audioHandler,
-            playlistRepository: playlistRepository,
-            audioRepository: audioRepository,
+            playerHandler: sl(),
+            playlistRepository: sl(),
+            audioRepository: sl(),
             initialPlaylist: _tempAudios,
             initialIndex: _savedIndex,
           ),
     ),
     BlocProvider<PlaylistBloc>(
-      create:
-          (_) =>
-              PlaylistBloc(repository: playlistRepository)
-                ..add(LoadPlaylists()),
+      create: (_) => PlaylistBloc(repository: sl())..add(LoadPlaylists()),
     ),
     BlocProvider<ArtistListBloc>(
       create:
-          (context) =>
-              ArtistListBloc(repository: audioRepository)
-                ..add(FetchArtistList()),
+          (_) => ArtistListBloc(
+            searchArtists: sl(),
+            fetchArtists: sl(),
+            fetchSongsByArtist: sl(),
+          )..add(FetchArtistList()),
     ),
     BlocProvider<AlbumListBloc>(
       create:
-          (context) =>
-              AlbumListBloc(repository: audioRepository)..add(FetchAlbumList()),
+          (_) => AlbumListBloc(
+            searchAlbums: sl(),
+            fetchAlbums: sl(),
+            fetchSongsByAlbum: sl(),
+          )..add(FetchAlbumList()),
     ),
   ];
 }

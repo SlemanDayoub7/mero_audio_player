@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
 import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';

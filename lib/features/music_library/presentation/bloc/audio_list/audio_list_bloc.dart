@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mero_audio_player/core/services/media_store_service.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/get_audio_files.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/search_audio_files.dart';
-import 'package:mero_audio_player/features/music_library/domain/usecases/sort_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/get_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/search_audio_files.dart';
+import 'package:mero_audio_player/features/music_library/domain/usecases/audio_list_usecases/sort_audio_files.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import '../../../domain/entities/audio_file/audio_file.dart';
 import '../../../domain/repositories/audio_repository.dart';
@@ -27,7 +27,7 @@ class AudioListBloc extends Bloc<AudioListEvent, AudioListState> {
     on<FetchAudioList>((event, emit) async {
       emit(AudioListLoading());
       try {
-        _fullList = await repository.fetchAudioFiles();
+        _fullList = await getAudioFiles.call();
         emit(AudioListLoaded(audios: _fullList));
       } catch (e) {
         emit(AudioListError(message: e.toString()));
@@ -45,45 +45,12 @@ class AudioListBloc extends Bloc<AudioListEvent, AudioListState> {
 
     on<SortAudioList>((event, emit) async {
       if (state is AudioListLoaded) {
-        // Copy existing full list for sorting
-        List<AudioFile> sortedList = List.from(_fullList);
+        List<AudioFile> sortedList = sortAudioFiles.call(
+          audios: _fullList,
+          sortType: event.sortType,
+          orderType: event.orderType,
+        );
 
-        // Sort by selected SongSortType
-        switch (event.sortType) {
-          case SongSortType.ARTIST:
-            sortedList.sort(
-              (a, b) => a.artistOrUnknown.toLowerCase().compareTo(
-                b.artistOrUnknown.toLowerCase(),
-              ),
-            );
-            break;
-          case SongSortType.DATE_ADDED:
-            sortedList.sort((a, b) => a.dateAdded!.compareTo(b.dateAdded!));
-            break;
-          case SongSortType.TITLE:
-            sortedList.sort(
-              (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
-            );
-            break;
-          case SongSortType.ALBUM:
-            sortedList.sort(
-              (a, b) => a.albumOrUnknown.toLowerCase().compareTo(
-                b.albumOrUnknown.toLowerCase(),
-              ),
-            );
-            break;
-          case SongSortType.DURATION:
-            sortedList.sort((a, b) => a.duration!.compareTo(b.duration!));
-            break;
-          case SongSortType.SIZE:
-            sortedList.sort((a, b) => a.size!.compareTo(b.size!));
-            break;
-          case SongSortType.DISPLAY_NAME:
-            break;
-        }
-        if (event.orderType == OrderType.DESC_OR_GREATER) {
-          sortedList = sortedList.reversed.toList();
-        }
         // Emit updated state with sorted list and current sort type
         emit(AudioListLoaded(audios: sortedList));
       }
@@ -92,15 +59,9 @@ class AudioListBloc extends Bloc<AudioListEvent, AudioListState> {
     on<SearchAudio>((event, emit) {
       if (state is AudioListLoaded) {
         final query = event.query.toLowerCase();
-        final filtered =
-            _fullList.where((audio) {
-              final title = audio.title.toLowerCase();
-              final artist = audio.artistOrUnknown.toLowerCase();
-              final album = audio.albumOrUnknown.toLowerCase();
-              return title.contains(query) ||
-                  artist.contains(query) ||
-                  album.contains(query);
-            }).toList();
+
+        final filtered = searchAudioFiles.call(audios: _fullList, query: query);
+
         emit(AudioListLoaded(audios: filtered));
       }
     });
