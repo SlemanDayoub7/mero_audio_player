@@ -168,12 +168,11 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 # **👨‍💻 Developer**:
 - Sleman Dayoub
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/sleman-dayoub-6b95a6284/)
-
-<div align="center">![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٦-٠٢-٤٥٩_com example mero_audio_player](https://github.com/user-attachments/assets/f5879ae1-6db5-46a0-9af8-fc22913fb1ff)
+- [LinkedIn](https://www.linkedin.com/in/sleman-dayoub-6b95a6284/)
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
