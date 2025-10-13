@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart' show Hive;
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
+import 'package:mero_audio_player/features/music_library/presentation/bloc/audio_list/audio_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
-import 'package:mero_audio_player/injection.dart';
+import 'package:mero_audio_player/core/di/injection.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class SortOrderPlaybackWidget extends StatefulWidget {
@@ -26,7 +26,6 @@ class SortOrderPlaybackWidget extends StatefulWidget {
 class _SortOrderPlaybackWidgetState extends State<SortOrderPlaybackWidget> {
   @override
   Widget build(BuildContext context) {
-    final audioBloc = context.read<AudioPlayerBloc>();
     return Row(
       mainAxisAlignment:
           !widget.showSortOrder!

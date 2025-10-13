@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import '../../domain/entities/audio_file.dart';
+import '../../../music_library/domain/entities/audio_file/audio_file.dart';
 
 class AudioArtworkWidget extends StatelessWidget {
   final AudioFile audio;

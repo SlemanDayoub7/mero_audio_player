@@ -2,18 +2,19 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/core/widgets/app_drawer.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
-import 'package:mero_audio_player/features/about_us_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/albums/albums_list_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/artists/artists_list_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/audios/audios_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/playlist/playlist_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/info/about_us_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
+import 'package:mero_audio_player/features/music_library/presentation/pages/albums/albums_list_page.dart';
+import 'package:mero_audio_player/features/music_library/presentation/pages/artists/artists_list_page.dart';
+import 'package:mero_audio_player/features/music_library/presentation/pages/audios/audios_page.dart';
+import 'package:mero_audio_player/features/playlist/presentation/pages/playlist_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/current_audio_widget.dart';
-import 'package:mero_audio_player/features/privacy_policy_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/info/privacy_policy_page.dart';
 import 'package:mero_audio_player/gen/fonts.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
@@ -109,7 +110,7 @@ class _MainScreenState extends State<MainScreen>
                     children: [
                       context.emptySizedWidthMedium,
                       Text(
-                        'Mero Audio Player',
+                        AppConstants.appTitle,
                         style: TextStyles.displayMedium.copyWith(
                           color: Colors.white,
                         ),

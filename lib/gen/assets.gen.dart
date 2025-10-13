@@ -188,14 +188,11 @@ class $AssetsImagesGen {
   /// File path: assets/images/logo.png
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
 
-  /// File path: assets/images/mate.jpg
-  AssetGenImage get mateJpg => const AssetGenImage('assets/images/mate.jpg');
-
   /// File path: assets/images/mate.png
-  AssetGenImage get matePng => const AssetGenImage('assets/images/mate.png');
+  AssetGenImage get mate => const AssetGenImage('assets/images/mate.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [logo, mateJpg, matePng];
+  List<AssetGenImage> get values => [logo, mate];
 }
 
 class $AssetsLocalesGen {

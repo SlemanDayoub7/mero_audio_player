@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
+import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
+import 'package:mero_audio_player/features/playlist/presentation/bloc/playlist_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/full_player_page.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/control_icon_widget.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 

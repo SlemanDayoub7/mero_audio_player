@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 
 class AppGradientBackground extends StatelessWidget {
   final bool? isForPlayer;

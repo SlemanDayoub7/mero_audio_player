@@ -5,6 +5,7 @@ import 'package:mero_audio_player/core/themes/text_styles.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/full_player_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/audios_bottom_sheet.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/widgets/control_icon_widget.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 

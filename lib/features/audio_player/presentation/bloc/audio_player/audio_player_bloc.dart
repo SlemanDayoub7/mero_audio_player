@@ -3,12 +3,12 @@ import 'package:equalizer_flutter/equalizer_flutter.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
-import 'package:mero_audio_player/features/audio_player/domain/repositories/audio_repository.dart';
-import 'package:mero_audio_player/features/audio_player/domain/repositories/playlists_repository.dart';
-import 'package:mero_audio_player/features/audio_player/services/audio_handler.dart';
-import 'package:mero_audio_player/injection.dart';
-import '../../../domain/entities/audio_file.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played/recently_played_event.dart';
+import 'package:mero_audio_player/features/music_library/domain/repositories/audio_repository.dart';
+import 'package:mero_audio_player/features/playlist/domain/repositories/playlists_repository.dart';
+import 'package:mero_audio_player/core/services/audio_handler.dart';
+import 'package:mero_audio_player/core/di/injection.dart';
+import '../../../../music_library/domain/entities/audio_file/audio_file.dart';
 part 'audio_player_event.dart';
 part 'audio_player_state.dart';
 
@@ -244,16 +244,9 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
 
   @override
   Future<void> close() {
-    print('sss');
     EqualizerFlutter.release();
     EqualizerFlutter.setEnabled(false);
     EqualizerFlutter.removeAudioSessionId(0);
     return super.close();
   }
-}
-
-Future<bool> _checkIfAudioExists(String audioId) async {
-  // Implement device or repository check whether audio file still exists
-  // Return true if exists, false if deleted/missing
-  return true; // Placeholder for demo
 }

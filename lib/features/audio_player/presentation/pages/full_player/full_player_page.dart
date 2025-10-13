@@ -1,29 +1,60 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
+
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/app_background_image.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/widgets/audio_title_marquee.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/current_audio_detail/widgets/slider_progress.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/equalizer_ui.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/audios_bottom_sheet.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/speed_drop_down.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/widgets/add_to_favorite_widget.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/widgets/waiting_list_widget.dart';
-import 'package:mero_audio_player/gen/assets.gen.dart';
-import 'package:mero_audio_player/generated/codegen_loader.g.dart';
-import 'package:mero_audio_player/injection.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/artwork_player_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/audio_title_marquee.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/player_controls_bloc_builder.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/player_options_widget.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/slider_progress.dart';
+import 'package:mero_audio_player/features/audio_player/presentation/pages/full_player/widgets/top_player_widget.dart';
 import '../../bloc/audio_player/audio_player_bloc.dart';
 
-class FullPlayerPage extends StatelessWidget {
+class FullPlayerPage extends StatefulWidget {
   const FullPlayerPage({super.key});
 
-  // Open device equalizer
+  @override
+  State<FullPlayerPage> createState() => _FullPlayerPageState();
+}
+
+class _FullPlayerPageState extends State<FullPlayerPage>
+    with SingleTickerProviderStateMixin {
+  String _swipeDirection = 'none';
+  double _dragOffset = 0.0;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animation = Tween<double>(begin: 0, end: 0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _animateBack() {
+    _animation = Tween<double>(begin: _dragOffset, end: 0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    )..addListener(() {
+      setState(() {
+        _dragOffset = _animation.value;
+      });
+    });
+    _animationController.forward(from: 0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,82 +76,86 @@ class FullPlayerPage extends StatelessWidget {
                 return Column(
                   children: [
                     context.emptySizedHeightMedium,
-                    // 🔹 1. الشريط العلوي
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      child: Row(
-                        children: [
-                          ControlIconWidget(
-                            icon: Icons.arrow_back,
-                            size: 35.sp,
-                            opacity: 0,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          Expanded(
-                            child: Text(
-                              current.artistOrUnknown,
-                              style: TextStyles.titleMedium.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          AddToFavoriteWidget(audioFile: current),
-                        ],
-                      ),
-                    ),
+                    TopPlayerWidget(current: current),
 
-                    // 🔹 2. Artwork / لوتى
+                    // 🎨 Interactive swipe artwork
                     Expanded(
                       flex: 4,
-                      child: StreamBuilder<bool>(
-                        stream: player.playingStream,
-                        initialData: player.playing,
-                        builder: (context, snapshot) {
-                          final isPlaying = snapshot.data ?? false;
-                          return Center(
-                            child: SizedBox(
-                              width: 0.9.sw,
-                              height: 0.9.sw,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // AudioArtworkWidget(
-                                  //   audio: current,
-                                  //   showNullWidget: false,
-                                  //   size: 0.9.sw,
-                                  //   borderRadius: 0.9.sw,
-                                  // ),
-                                  Lottie.asset(
-                                    globalLottiePath,
-                                    animate: isPlaying,
-                                    height: 0.9.sw,
-                                    width: 0.9.sw,
-                                  ),
-                                  AudioArtworkWidget(
-                                    audio: current,
-                                    size: 130.r,
-                                    showIconNullWidget: true,
-                                    borderRadius: 100.r,
-                                  ),
-                                ],
+                      child: GestureDetector(
+                        onHorizontalDragUpdate: (details) {
+                          setState(() {
+                            _dragOffset += details.delta.dx;
+                          });
+                        },
+                        onHorizontalDragEnd: (details) {
+                          const threshold =
+                              100; // distance required to trigger next/prev
+                          if (_dragOffset.abs() > threshold) {
+                            if (_dragOffset < 0) {
+                              // Swipe Left → Next
+                              _swipeDirection = 'left';
+                              audioBloc.add(NextAudio());
+                            } else {
+                              // Swipe Right → Previous
+                              _swipeDirection = 'right';
+                              audioBloc.add(PreviousAudio());
+                            }
+                          }
+                          _animateBack();
+                        },
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (
+                            Widget child,
+                            Animation<double> animation,
+                          ) {
+                            final offsetAnimation = Tween<Offset>(
+                              begin:
+                                  _swipeDirection == 'left'
+                                      ? const Offset(1.0, 0.0)
+                                      : _swipeDirection == 'right'
+                                      ? const Offset(-1.0, 0.0)
+                                      : Offset.zero,
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeInOut,
+                              ),
+                            );
+
+                            return SlideTransition(
+                              position: offsetAnimation,
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Transform.translate(
+                            offset: Offset(_dragOffset, 0),
+                            child: Transform.scale(
+                              scale:
+                                  1 - (_dragOffset.abs() / 600).clamp(0, 0.15),
+                              child: Transform.rotate(
+                                angle: (_dragOffset / 800).clamp(-0.15, 0.15),
+                                child: ArtworkPlayerWidget(
+                                  key: ValueKey(current.id ?? current.title),
+                                  player: player,
+                                  current: current,
+                                ),
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
                     ),
 
-                    // 🔹 3. عنوان + ألبوم + Slider
+                    // 🎵 Rest of player layout
                     Expanded(
                       flex: 2,
                       child: Padding(
-                        padding: EdgeInsets.only(left: 0.06.sw, right: 0.06.sw),
+                        padding: EdgeInsets.symmetric(horizontal: 0.06.sw),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -133,152 +168,7 @@ class FullPlayerPage extends StatelessWidget {
                               maxLines: 1,
                               textAlign: TextAlign.center,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SizedBox(
-                                  width: 0.22.sw,
-                                  child: SpeedDropdown(
-                                    currentSpeed: audioBloc.state.speed,
-                                    onChanged:
-                                        (value) => audioBloc.add(
-                                          SetPlaybackSpeed(value),
-                                        ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 0.22.sw,
-                                  child: Stack(
-                                    children: [
-                                      Center(
-                                        child: ControlIconWidget(
-                                          svgGenImage: Assets.icons.equalizer,
-                                          size: 35.sp,
-                                          onPressed:
-                                              () => {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder:
-                                                        (context) =>
-                                                            EqualizerUi(),
-                                                  ),
-                                                ),
-                                              },
-                                        ),
-                                      ),
-                                      // Align(
-                                      //   alignment: Alignment.topRight,
-                                      //   child: Text(data),
-                                      // ),
-                                    ],
-                                  ),
-                                ),
-                                // Simple Equalizer Button - Opens Device Equalizer
-                                SizedBox(
-                                  width: 0.22.sw,
-                                  child: Center(
-                                    child: DropdownButton<PlaybackMode>(
-                                      underline: const SizedBox.shrink(),
-                                      dropdownColor: globalBackgroundColor,
-                                      value: playbackMode,
-                                      menuWidth: 0.30.sw,
-                                      selectedItemBuilder: (context) {
-                                        return PlaybackMode.values.map((type) {
-                                          switch (type) {
-                                            case PlaybackMode.shuffle:
-                                              return Assets.icons.shuffle.svg(
-                                                color: Colors.white,
-                                                width: 25.sp,
-                                                height: 25.sp,
-                                              );
-                                            case PlaybackMode.repeatOne:
-                                              return Assets.icons.repeateOne
-                                                  .svg(
-                                                    color: Colors.white,
-                                                    width: 25.sp,
-                                                    height: 25.sp,
-                                                  );
-                                            case PlaybackMode.repeatAll:
-                                              return Assets.icons.repeate.svg(
-                                                color: Colors.white,
-                                                width: 25.sp,
-                                                height: 25.sp,
-                                              );
-                                          }
-                                        }).toList();
-                                      },
-                                      icon: SizedBox.shrink(),
-                                      items:
-                                          PlaybackMode.values.map((type) {
-                                            String label;
-                                            switch (type) {
-                                              case PlaybackMode.repeatAll:
-                                                label =
-                                                    LocaleKeys.repeatAll.tr();
-                                                break;
-                                              case PlaybackMode.repeatOne:
-                                                label =
-                                                    LocaleKeys.repeatCurrent
-                                                        .tr();
-                                                break;
-                                              case PlaybackMode.shuffle:
-                                                label = LocaleKeys.shuffle.tr();
-                                                break;
-                                            }
-                                            return DropdownMenuItem<
-                                              PlaybackMode
-                                            >(
-                                              value: type,
-                                              child: Text(
-                                                label,
-                                                style: TextStyles.bodyLarge
-                                                    .copyWith(
-                                                      color: Colors.white,
-                                                    ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                      onChanged: (newPlaybackMode) {
-                                        playbackMode = newPlaybackMode!;
-                                        audioBloc.add(
-                                          TogglePlaybackMode(
-                                            playbackMode: newPlaybackMode,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 0.22.sw,
-                                  child: Align(
-                                    alignment: AlignmentDirectional.centerEnd,
-                                    child: InkWell(
-                                      child: Assets.icons.musicLibrary.svg(
-                                        color: Colors.white,
-
-                                        width: 25.sp,
-                                        height: 25.sp,
-                                      ),
-                                      onTap: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          builder:
-                                              (context) => AudiosBottomSheet(
-                                                initialIndex:
-                                                    audioBloc.currentIndex ?? 0,
-                                                audios:
-                                                    audioBloc.currentPlaylist,
-                                              ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
+                            PlayerOptionsWidget(audioBloc: audioBloc),
                             StreamBuilder<Duration>(
                               stream: player.positionStream,
                               builder: (context, snapshot) {
@@ -323,108 +213,14 @@ class FullPlayerPage extends StatelessWidget {
                       ),
                     ),
 
-                    // 🔹 4. أزرار التحكم الكبيرة
                     Expanded(
                       flex: 1,
-                      child: BlocBuilder<AudioPlayerBloc, AudioPlayerState>(
-                        builder: (context, state) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              // -10s
-                              StreamBuilder<Duration>(
-                                stream: player.positionStream,
-                                builder: (context, snapshot) {
-                                  return ControlIconWidget(
-                                    svgGenImage:
-                                        context.locale.languageCode != 'ar'
-                                            ? Assets.icons.backward10Second
-                                            : Assets.icons.forward10Seconds,
-                                    opacity: 0,
-                                    onPressed: () {
-                                      int a =
-                                          ((snapshot.data ?? Duration.zero) -
-                                                  const Duration(seconds: 10))
-                                              .inSeconds;
-                                      if (a < 0) a = 0;
-                                      audioBloc.add(
-                                        SeekAudio(Duration(seconds: a)),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-
-                              ControlIconWidget(
-                                rotate: context.locale.languageCode != 'ar',
-                                opacity: 0.8,
-                                svgGenImage: Assets.icons.next,
-                                onPressed: () => audioBloc.add(PreviousAudio()),
-                              ),
-
-                              StreamBuilder<bool>(
-                                stream: player.playingStream,
-                                initialData: player.playing,
-                                builder: (context, snapshot) {
-                                  final isPlaying = snapshot.data ?? false;
-                                  return ControlIconWidget(
-                                    onPressed: () {
-                                      if (isPlaying) {
-                                        audioBloc.add(PauseAudio());
-                                      } else {
-                                        audioBloc.add(ResumeAudio());
-                                      }
-                                    },
-                                    size: 65.sp,
-                                    opacity: 0.8,
-                                    svgGenImage:
-                                        isPlaying
-                                            ? Assets.icons.pause
-                                            : Assets.icons.play,
-                                  );
-                                },
-                              ),
-                              ControlIconWidget(
-                                opacity: 0.8,
-                                svgGenImage: Assets.icons.next,
-                                rotate: context.locale.languageCode == 'ar',
-                                onPressed: () => audioBloc.add(NextAudio()),
-                              ),
-                              StreamBuilder<Duration>(
-                                stream: player.positionStream,
-                                builder: (context, snapshot) {
-                                  return ControlIconWidget(
-                                    svgGenImage:
-                                        context.locale.languageCode == 'ar'
-                                            ? Assets.icons.backward10Second
-                                            : Assets.icons.forward10Seconds,
-                                    opacity: 0,
-                                    onPressed: () {
-                                      int a =
-                                          ((snapshot.data ?? Duration.zero) +
-                                                  const Duration(seconds: 10))
-                                              .inSeconds;
-                                      if (a > (current.duration ?? 0)) {
-                                        a = (current.duration ?? 0);
-                                      }
-                                      audioBloc.add(
-                                        SeekAudio(Duration(seconds: a)),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
+                      child: PlayerControlsBlocBuilder(
+                        player: player,
+                        audioBloc: audioBloc,
+                        current: current,
                       ),
                     ),
-
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //   children: [WaitingListWidget(audioBloc: audioBloc)],
-                    // ),
-                    // 🔹 5. سرعة + مود التشغيل + الانتظار
                   ],
                 );
               },
@@ -440,64 +236,5 @@ class FullPlayerPage extends StatelessWidget {
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return "${h == 0 ? '' : ('$h:')}$m:$s";
-  }
-}
-
-class ControlIconWidget extends StatelessWidget {
-  final IconData? icon;
-  final double? size;
-  final SvgGenImage? svgGenImage;
-  final Color? color;
-  final Function()? onPressed;
-  final double? opacity;
-  final bool? rotate;
-  final Color? borderColor;
-  const ControlIconWidget({
-    super.key,
-    this.svgGenImage,
-    this.icon,
-    this.size,
-    this.onPressed,
-    this.opacity,
-    this.color,
-    this.rotate = false,
-    this.borderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      splashColor: Colors.white.withOpacity(0.1),
-      borderRadius: BorderRadius.circular(100.r),
-      child: RotatedBox(
-        quarterTurns: rotate! ? 2 : 0,
-        child: Container(
-          padding: EdgeInsets.all(6.w),
-          width: (size ?? 45.w),
-          height: (size ?? 45.w),
-          decoration: BoxDecoration(
-            border:
-                borderColor != null ? Border.all(color: borderColor!) : null,
-            shape: BoxShape.circle,
-            color: (globalBackgroundColor ?? Colors.black).withOpacity(
-              opacity ?? 0.5,
-            ),
-          ),
-          child:
-              svgGenImage != null
-                  ? svgGenImage!.svg(
-                    color: color ?? Colors.white,
-                    width: (size ?? 45.w),
-                    height: (size ?? 45.w),
-                  )
-                  : Icon(
-                    icon,
-                    size: size ?? 40.sp,
-                    color: color ?? Colors.white,
-                  ),
-        ),
-      ),
-    );
   }
 }

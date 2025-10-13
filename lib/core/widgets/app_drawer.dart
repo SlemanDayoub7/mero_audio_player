@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:mero_audio_player/core/constants/languages.dart';
+import 'package:mero_audio_player/core/localization/languages.dart';
 
 import 'package:mero_audio_player/core/themes/text_styles.dart';
 
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
@@ -145,7 +145,7 @@ class AppDrawer extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 20.h),
               child: Text(
-                "© 2025 SLEMAN DAYOYB",
+                "© 2025 SLEMAN DAYOUB",
                 style: TextStyles.displayMedium.copyWith(color: Colors.white),
               ),
             ),

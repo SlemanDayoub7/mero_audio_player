@@ -4,14 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played_event.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_list/audio_list_bloc.dart';
+import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
+import 'package:mero_audio_player/features/audio_player/domain/entities/recently_played/recently_played_event.dart';
+import 'package:mero_audio_player/features/music_library/presentation/bloc/audio_list/audio_list_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_art_work_widget.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_options_sheet.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/mini_music_visualizer_widget.dart';
-import 'package:mero_audio_player/injection.dart';
+import 'package:mero_audio_player/core/di/injection.dart';
 
 class AudioWidget extends StatelessWidget {
   const AudioWidget({

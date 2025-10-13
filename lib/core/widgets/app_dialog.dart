@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/playlist/playlist_bloc.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
+import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
+import 'package:mero_audio_player/features/playlist/presentation/bloc/playlist_bloc.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
 Future<void> showCreatePlaylistDialog(

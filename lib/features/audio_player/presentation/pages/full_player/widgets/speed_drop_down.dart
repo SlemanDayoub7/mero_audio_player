@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/change_background_page.dart';
-import 'package:mero_audio_player/gen/assets.gen.dart';
+import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 
 class SpeedDropdown extends StatelessWidget {
   final double currentSpeed;

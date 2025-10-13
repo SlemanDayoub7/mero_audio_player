@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/widgets/app_gradient_background.dart';
-import 'package:mero_audio_player/features/audio_player/domain/entities/audio_file.dart';
+import 'package:mero_audio_player/features/music_library/domain/entities/audio_file/audio_file.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/audio_widget.dart';
-import 'package:mero_audio_player/injection.dart';
+import 'package:mero_audio_player/core/di/injection.dart';
 
 class AudiosBottomSheet extends StatefulWidget {
   final List<AudioFile> audios;
-  final int initialIndex; // مؤشر الصوت الحالي للتمرير إليه
+  final int initialIndex;
 
   const AudiosBottomSheet({
     super.key,
