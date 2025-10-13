@@ -3,31 +3,29 @@
 
 Your ultimate offline music companion — designed for speed, simplicity, and full control of your listening experience.
 
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/SlemanDayoub7/mero_audio_player?label=Latest%20Release&color=FF6B35" alt="Release">
-  <img src="https://img.shields.io/github/stars/SlemanDayoub7/mero_audio_player?style=social&color=FFA07A" alt="Stars">
-  <img src="https://img.shields.io/github/issues/SlemanDayoub7/mero_audio_player?color=FF6B35" alt="Issues">
-  <img src="https://img.shields.io/github/license/SlemanDayoub7/mero_audio_player?color=FFA07A" alt="License">
-</p>
-
 A showcase of advanced Flutter development, clean architecture, and native Android integration.
 
 ## 📸 App Preview
 <p align="center">
-  ![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)
-  
-  ![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)
-  
-  ![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)
+  <img src="screenshots/1.jpg" alt="Screenshot 1" width="30%">
+  <img src="screenshots/2.jpg" alt="Screenshot 2" width="30%">
+  <img src="screenshots/3.jpg" alt="Screenshot 3" width="30%">
 </p>
+
+<p align="center">
+  <img src="screenshots/4.jpg" alt="Screenshot 4" width="30%">
+  <img src="screenshots/5.jpg" alt="Screenshot 5" width="30%">
+  <img src="screenshots/7.jpg" alt="Screenshot 6" width="30%">
+</p>
+
 ---
 
 ## 📥 Download Now
 
 <p align="center">
-  <a href="https://github.com/SlemanDayoub7/mero_audio_player/releases">
-    <img src="https://img.shields.io/badge/Download-Latest%20Release-FF6B35?style=for-the-badge&logo=github" alt="Download Release">
-  </a>
+<a href="https://github.com/SlemanDayoub7/mero_audio_player/releases/download/music/mero.audio.player.apk"><img src="https://camo.githubusercontent.com/b9ebfe4f0c9804b44c4ca830fed2cef3dd261e8a9005e17ac0e314186e0fcf03/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539332541352d446f776e6c6f616425323041504b2d627269676874677265656e3f7374796c653d666f722d7468652d6261646765" alt="Download APK" data-canonical-src="https://img.shields.io/badge/%F0%9F%93%A5-Download%20APK-brightgreen?style=for-the-badge" style="max-width: 100%;">
+</a>
+
 </p>
 
 ---
@@ -159,8 +157,7 @@ flutter run
 #### 🛠️ Building for Release
 To build an APK for distribution:
 ```bash
-flutter build apk --release 
---split-per-abi
+flutter build apk --release --split-per-abi
 ```
 # **🤝 Contributing**:
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
@@ -170,12 +167,15 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 # **👨‍💻 Developer**:
 - Sleman Dayoub
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/sleman-dayoub-6b95a6284/)
-
-<div align="center">![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٦-٠٢-٤٥٩_com example mero_audio_player](https://github.com/user-attachments/assets/f5879ae1-6db5-46a0-9af8-fc22913fb1ff)
+- [LinkedIn](https://www.linkedin.com/in/sleman-dayoub-6b95a6284/)
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
+
+
+
+
 
 
 
