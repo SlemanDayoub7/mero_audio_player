@@ -3,13 +3,6 @@
 
 Your ultimate offline music companion — designed for speed, simplicity, and full control of your listening experience.
 
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/SlemanDayoub7/mero_audio_player?label=Latest%20Release&color=FF6B35" alt="Release">
-  <img src="https://img.shields.io/github/stars/SlemanDayoub7/mero_audio_player?style=social&color=FFA07A" alt="Stars">
-  <img src="https://img.shields.io/github/issues/SlemanDayoub7/mero_audio_player?color=FF6B35" alt="Issues">
-  <img src="https://img.shields.io/github/license/SlemanDayoub7/mero_audio_player?color=FFA07A" alt="License">
-</p>
-
 A showcase of advanced Flutter development, clean architecture, and native Android integration.
 
 ## 📸 App Preview
@@ -181,6 +174,7 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
