@@ -1,20 +1,27 @@
 # Mero Audio Player
-<img width="824" height="300" alt="cover" src="https://github.com/user-attachments/assets/cdb420a9-24d6-4d38-9c69-cb7cd58a4dbb" />
+<img width="1024" height="300" alt="cover" src="https://github.com/user-attachments/assets/69203f8c-d2f3-47c0-94cd-d6388fb64ae8" />
 
 Your ultimate offline music companion — designed for speed, simplicity, and full control of your listening experience.
 
-https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white
-https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white
-https://img.shields.io/badge/State%2520Management-BLoC-5FB0C8?style=for-the-badge
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/SlemanDayoub7/mero_audio_playe?label=Latest%20Release&color=FF6B35" alt="Release">
+  <img src="https://img.shields.io/github/stars/SlemanDayoub7/mero_audio_playe?style=social&color=FFA07A" alt="Stars">
+  <img src="https://img.shields.io/github/issues/SlemanDayoub7/mero_audio_playe?color=FF6B35" alt="Issues">
+  <img src="https://img.shields.io/github/license/SlemanDayoub7/mero_audio_playe?color=FFA07A" alt="License">
+</p>
 
 A showcase of advanced Flutter development, clean architecture, and native Android integration.
 
-</div>
-📱 Screenshots
+## 📸 App Preview
+<p align="center">
+  <img src="![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)" alt="Screenshot 1" width="30%">
+  <img src="![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)" alt="Screenshot 2" width="30%">
+  <img src="![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)" alt="Screenshot 3" width="30%">
+</p>
 
-Player Screen	Playlists	Equalizer	Themes
-![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٠-٥٢-٤٢٥_com example mero_audio_player](https://github.com/user-attachments/assets/524d16f6-177a-47d6-bccc-75839dab427b)
-![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-٠٣-٤٩-٠٠٢_com example mero_audio_player](https://github.com/user-attachments/assets/37e60bf9-ec28-40bc-a492-c04e4df95b25)
+![3](https://github.com/user-attachments/assets/81d471a9-e2d8-4b34-bf38-b70e654e8a90)
+![2](https://github.com/user-attachments/assets/931604ef-5bfc-46b2-bae7-d65cf742665e)
+![1](https://github.com/user-attachments/assets/b2915a97-c319-4746-83fd-0a76ef0cd4cc)
 
 🚀 Features
 🎵 Core Experience
@@ -164,4 +171,5 @@ Portfolio: Your Portfolio Website![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٨-٢٧-
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
