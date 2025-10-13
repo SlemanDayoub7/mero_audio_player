@@ -1,5 +1,5 @@
-Mero Audio Player
-<img width="512" height="512" alt="playstore" src="https://github.com/user-attachments/assets/91442317-6d94-4697-a5df-b0f0de12a947" />
+# Mero Audio Player
+<img width="824" height="300" alt="cover" src="https://github.com/user-attachments/assets/cdb420a9-24d6-4d38-9c69-cb7cd58a4dbb" />
 
 Your ultimate offline music companion — designed for speed, simplicity, and full control of your listening experience.
 
@@ -164,3 +164,4 @@ Portfolio: Your Portfolio Website![Screenshot_٢٠٢٥-١٠-٠٣-٢٢-١٨-٢٧-
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
