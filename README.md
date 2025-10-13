@@ -25,7 +25,7 @@ A showcase of advanced Flutter development, clean architecture, and native Andro
 ## 📥 Download Now
 
 <p align="center">
-  <a href="https://github.com/SlemanDayoub7/mero_audio_player/releases/download/v1.0.0/Mero Audio Player.apk">
+  <a href="https://github.com/SlemanDayoub7/mero_audio_player/releases">
     <img src="https://img.shields.io/badge/Download-Latest%20Release-FF6B35?style=for-the-badge&logo=github" alt="Download Release">
   </a>
 </p>
@@ -176,6 +176,7 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
