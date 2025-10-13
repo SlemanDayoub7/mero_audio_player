@@ -157,8 +157,7 @@ flutter run
 #### 🛠️ Building for Release
 To build an APK for distribution:
 ```bash
-flutter build apk --release 
---split-per-abi
+flutter build apk --release --split-per-abi
 ```
 # **🤝 Contributing**:
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
@@ -172,6 +171,7 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
