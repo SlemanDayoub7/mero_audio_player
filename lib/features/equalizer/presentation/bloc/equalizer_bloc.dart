@@ -17,9 +17,6 @@ class EqualizerBloc extends Bloc<EqualizerEvent, EqualizerState> {
   ) async {
     try {
       emit(const EqualizerLoading());
-
-      EqualizerFlutter.init(0);
-
       final bandLevelRange = await EqualizerFlutter.getBandLevelRange();
       final centerFreqs = await EqualizerFlutter.getCenterBandFreqs();
 

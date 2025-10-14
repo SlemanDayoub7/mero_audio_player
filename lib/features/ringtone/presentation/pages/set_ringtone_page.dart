@@ -105,7 +105,8 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    start = 0;
+    end = widget.audioFile.duration!.toDouble();
     super.initState();
   }
 
@@ -142,7 +143,7 @@ class _SetRingtonePageState extends State<SetRingtonePage> {
                                 currentPosition.inMilliseconds / 1000,
                             backgroundColor: Colors.grey.shade300,
                             heightWaveSlider: 200.h,
-                            widthWaveSlider: 1.sw,
+                            widthWaveSlider: 0.98.sw,
                             duration:
                                 (widget.audioFile.duration! / 1000).toDouble(),
                             callbackStart: (duration) {

@@ -160,7 +160,7 @@ class WaveSliderState extends State<WaveSlider> {
                             return Container(
                               color: color,
                               height: height.toDouble(),
-                              width: 5.0,
+                              width: 4.94,
                             );
                           }).toList(),
                     ),

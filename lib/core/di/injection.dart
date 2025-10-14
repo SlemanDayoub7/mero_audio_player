@@ -56,6 +56,7 @@ int? _savedIndex;
 class Injection {
   static late final AudioPlayerHandler audioHandler;
   static Future<void> init() async {
+    _initEqualizer();
     placeArtwork =
         await ArtworkUtils.loadAssetAsFile(Assets.images.logo.path) ?? '';
     await _initAudioService();
@@ -63,7 +64,6 @@ class Injection {
     _fetchSavedOptions();
     _initRepositories();
     _initUsecases();
-    _initEqualizer();
 
     await _fetchLastPlayedAudio();
   }
