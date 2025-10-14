@@ -23,7 +23,7 @@ A showcase of advanced Flutter development, clean architecture, and native Andro
 ## 📥 Download Now
 
 <p align="center">
-<a href="https://github.com/SlemanDayoub7/mero_audio_player/releases/download/music/mero.audio.player.apk"><img src="https://camo.githubusercontent.com/b9ebfe4f0c9804b44c4ca830fed2cef3dd261e8a9005e17ac0e314186e0fcf03/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539332541352d446f776e6c6f616425323041504b2d627269676874677265656e3f7374796c653d666f722d7468652d6261646765" alt="Download APK" data-canonical-src="https://img.shields.io/badge/%F0%9F%93%A5-Download%20APK-brightgreen?style=for-the-badge" style="max-width: 100%;">
+<a href="https://github.com/SlemanDayoub7/mero_audio_player/releases/download/latest/mero.audio.player.apk"><img src="https://camo.githubusercontent.com/b9ebfe4f0c9804b44c4ca830fed2cef3dd261e8a9005e17ac0e314186e0fcf03/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539332541352d446f776e6c6f616425323041504b2d627269676874677265656e3f7374796c653d666f722d7468652d6261646765" alt="Download APK" data-canonical-src="https://img.shields.io/badge/%F0%9F%93%A5-Download%20APK-brightgreen?style=for-the-badge" style="max-width: 100%;">
 </a>
 
 </p>
@@ -171,6 +171,7 @@ This project is licensed under the GPL-3.0 license [LICENSE](LICENSE) file.
 
 ⭐ If you found this project helpful or impressive, don't forget to give it a star!
 </div>
+
 
 
 
