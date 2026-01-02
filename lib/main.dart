@@ -117,7 +117,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaleFactor: 0.75),
             child: ScreenUtilInit(
-              designSize: const Size(402, 874),
+              designSize: const Size(403, 874),
               minTextAdapt: true,
               splitScreenMode: true,
               builder: (context, child) {
