@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equalizer_flutter/equalizer_flutter.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,13 @@ import 'package:mero_audio_player/features/playlist/presentation/bloc/playlist_b
 import 'package:mero_audio_player/features/settings/presentation/pages/change_background/change_background_page.dart';
 import 'package:mero_audio_player/gen/assets.gen.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+// Lyrics feature imports
+import 'package:mero_audio_player/features/lyrics/data/datasources/lyrics_local_datasource.dart';
+import 'package:mero_audio_player/features/lyrics/data/datasources/lyrics_remote_datasource.dart';
+import 'package:mero_audio_player/features/lyrics/data/repositories/lyrics_repository_impl.dart';
+import 'package:mero_audio_player/features/lyrics/domain/repositories/lyrics_repository.dart';
+import 'package:mero_audio_player/features/lyrics/domain/usecases/fetch_lyrics.dart';
+import 'package:mero_audio_player/features/lyrics/presentation/bloc/lyrics_bloc.dart';
 
 // 🧠 Global service locator
 final sl = GetIt.instance;
@@ -64,6 +72,7 @@ class Injection {
     _fetchSavedOptions();
     _initRepositories();
     _initUsecases();
+    _initLyricsFeature();
 
     await _fetchLastPlayedAudio();
   }
@@ -79,18 +88,6 @@ class Injection {
       ),
     );
   }
-  // static Future<void> _initAudioService() async {
-  //   final handler = await AudioService.init(
-  //     builder: () => AudioPlayerHandler(),
-  //     config: AudioServiceConfig(
-  //       androidNotificationChannelId: AppConstants.androidNotificationChannelId,
-  //       androidNotificationChannelName:
-  //           AppConstants.androidNotificationChannelName,
-  //       androidStopForegroundOnPause: AppConstants.androidStopForegroundOnPause,
-  //     ),
-  //   );
-  //   sl.registerSingleton<AudioPlayerHandler>(handler);
-  // }
 
   static Future<void> _initHiveBoxes() async {
     Hive.registerAdapter(ChapterAdapter());
@@ -124,6 +121,39 @@ class Injection {
     sl.registerLazySingleton(() => FetchArtists(sl()));
     sl.registerLazySingleton(() => FetchSongsByArtist(sl()));
     sl.registerLazySingleton(() => SearchArtists());
+  }
+
+  /// Initialize Lyrics Feature
+  static void _initLyricsFeature() {
+    // Dio instance for HTTP requests
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
+    sl.registerSingleton<Dio>(dio);
+
+    // Data sources
+    sl.registerSingleton<LyricsLocalDatasource>(
+      LyricsLocalDatasourceImpl(),
+    );
+    sl.registerSingleton<LyricsRemoteDatasource>(
+      LyricsRemoteDatasourceImpl(sl<Dio>()),
+    );
+
+    // Repository
+    sl.registerLazySingleton<LyricsRepository>(
+      () => LyricsRepositoryImpl(
+        localDatasource: sl<LyricsLocalDatasource>(),
+        remoteDatasource: sl<LyricsRemoteDatasource>(),
+      ),
+    );
+
+    // Usecases
+    sl.registerLazySingleton<FetchLyrics>(
+      () => FetchLyrics(sl<LyricsRepository>()),
+    );
   }
 
   static void _initEqualizer() {
@@ -267,6 +297,9 @@ class Injection {
             fetchAlbums: sl(),
             fetchSongsByAlbum: sl(),
           )..add(FetchAlbumList()),
+    ),
+    BlocProvider<LyricsBloc>(
+      create: (_) => LyricsBloc(fetchLyricsUsecase: sl<FetchLyrics>()),
     ),
   ];
 }
