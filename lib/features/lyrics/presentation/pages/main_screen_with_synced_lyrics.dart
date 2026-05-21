@@ -1,8 +1,14 @@
-import 'dart:io';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
+import 'package:mero_audio_player/features/lyrics/presentation/bloc/lyrics_bloc.dart';
+import 'package:mero_audio_player/features/lyrics/presentation/bloc/lyrics_event.dart';
+
+/// Updated main screen with synced lyrics support
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mero_audio_player/core/constants/app_constants.dart';
 import 'package:mero_audio_player/core/extensions/theme_extensions.dart';
 import 'package:mero_audio_player/core/themes/text_styles.dart';
@@ -15,23 +21,21 @@ import 'package:mero_audio_player/features/music_library/presentation/pages/arti
 import 'package:mero_audio_player/features/music_library/presentation/pages/audios/audios_page.dart';
 import 'package:mero_audio_player/features/playlist/presentation/pages/playlist_page.dart';
 import 'package:mero_audio_player/features/audio_player/presentation/widgets/current_audio_widget.dart';
-import 'package:mero_audio_player/features/audio_player/presentation/bloc/audio_player/audio_player_bloc.dart';
 import 'package:mero_audio_player/features/settings/presentation/pages/info/privacy_policy_page.dart';
-import 'package:mero_audio_player/features/lyrics/presentation/bloc/lyrics_bloc.dart';
-import 'package:mero_audio_player/features/lyrics/presentation/bloc/lyrics_event.dart';
-import 'package:mero_audio_player/features/lyrics/presentation/pages/lyrics_page.dart';
+import 'package:mero_audio_player/features/lyrics/presentation/pages/synced_lyrics_page.dart';
 import 'package:mero_audio_player/features/lyrics/presentation/widgets/lyrics_fab_button.dart';
 import 'package:mero_audio_player/gen/fonts.gen.dart';
 import 'package:mero_audio_player/generated/codegen_loader.g.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MainScreenWithSyncedLyrics extends StatefulWidget {
+  const MainScreenWithSyncedLyrics({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainScreenWithSyncedLyrics> createState() =>
+      _MainScreenWithSyncedLyricsState();
 }
 
-class _MainScreenState extends State<MainScreen>
+class _MainScreenWithSyncedLyricsState extends State<MainScreenWithSyncedLyrics>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedIndex = 0;
@@ -62,8 +66,8 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
-  /// Show lyrics for the currently playing song
-  void _showLyrics() {
+  /// Show synced lyrics for the currently playing song
+  void _showSyncedLyrics() {
     final audioPlayerBloc = context.read<AudioPlayerBloc>();
     final currentSong = audioPlayerBloc.state.current;
 
@@ -87,11 +91,11 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
 
-    // Navigate to lyrics page
+    // Navigate to synced lyrics page
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LyricsPage(
+        builder: (context) => SyncedLyricsPage(
           songTitle: currentSong.title,
           songArtist: currentSong.artistOrUnknown,
           songDuration: Duration(milliseconds: currentSong.duration ?? 0),
@@ -214,7 +218,6 @@ class _MainScreenState extends State<MainScreen>
         body: Stack(
           children: [
             AppGradientBackground(),
-            //   AppBackgroundImage(),
             Padding(
               padding: EdgeInsets.only(top: 122.h, bottom: 94.h),
               child: IndexedStack(index: _selectedIndex, children: _pages),
@@ -225,9 +228,8 @@ class _MainScreenState extends State<MainScreen>
             ),
           ],
         ),
-        // Lyrics FAB Button
         floatingActionButton: LyricsFABButton(
-          onPressed: _showLyrics,
+          onPressed: _showSyncedLyrics,
           isLoading: false,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
